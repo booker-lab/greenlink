@@ -104,9 +104,10 @@ $$Z = \sum_{i=0}^{n} \sum_{j=0}^{n} (Cost_{ij} \times x_{ij}) + \sum_{i=1}^{n} (
 
 ## 📂 안티그래비티 작업 지침 (Web App Guidelines)
 
-### 1. 웹앱 최적화 레이아웃
-*   **Mobile First**: 모든 화면은 `max-w-md` (약 450px) 기준으로 중앙 정렬합니다.
-*   **App-like Experience**: 하단에 고정된 탭바(Bottom Navigation)를 배치하여 네이티브 앱과 유사한 경험을 제공합니다.
+### 1. 웹앱 최적화 레이아웃 (Responsive Design)
+*   **Responsive**: 데스크탑과 모바일 모두를 고려한 반응형 레이아웃을 제공합니다.
+*   **Flexible Container**: `max-w-md` 제한을 제거하고, 화면 크기에 따라 유연하게 확장되는 컨테이너를 사용합니다.
+*   **Note**: 추후 Capacitor를 이용한 네이티브 앱 전환 시, 모바일 뷰는 별도로 최적화할 예정입니다.
 
 ### 2. 주요 태스크
 1.  **기본 UI 구조**: 모바일 레이아웃 컨테이너 및 하단 내비게이션 바
