@@ -15,8 +15,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Green Link - 농민과 거점을 잇다",
+  title: "그린링크 - 농민과 거점을 잇다",
   description: "신선한 농산물을 가장 빠르게 전달하는 하이브리드 직배송 플랫폼",
+  manifest: "/manifest.json",
+  themeColor: "#22c55e",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "그린링크",
+  },
 };
 
 export default function RootLayout({
