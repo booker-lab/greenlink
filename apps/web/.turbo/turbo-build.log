@@ -1,0 +1,22 @@
+
+> @greenlink/web@0.1.0 build C:\develop\greenlink\apps\web
+> next build
+
+  ▲ Next.js 15.0.0
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./src/app/page.tsx:15:42
+Type error: This comparison appears to be unintentional because the types 'GroupBuyStatus' and '"OPEN"' have no overlap.
+
+[0m [90m 13 |[39m[0m
+[0m [90m 14 |[39m   [36mconst[39m featuredProducts [33m=[39m products[33m.[39mslice([35m0[39m[33m,[39m [35m4[39m)[33m;[39m[0m
+[0m[31m[1m>[22m[39m[90m 15 |[39m   [36mconst[39m closingDeals [33m=[39m deals[33m.[39mfilter(d [33m=>[39m d[33m.[39mstatus [33m===[39m [32m'OPEN'[39m)[33m.[39mslice([35m0[39m[33m,[39m [35m2[39m)[33m;[39m[0m
+[0m [90m    |[39m                                          [31m[1m^[22m[39m[0m
+[0m [90m 16 |[39m[0m
+[0m [90m 17 |[39m   [36mreturn[39m ([0m
+[0m [90m 18 |[39m     [33m<[39m[33mdiv[39m className[33m=[39m[32m"space-y-6 pb-8"[39m[33m>[39m[0m
+ ELIFECYCLE  Command failed with exit code 1.

@@ -1,0 +1,21 @@
+# GreenLink v2 Cursor Rules
+
+## Project Structure
+- Monorepo using pnpm and Turbo
+- Apps: `apps/web` (3000), `apps/admin` (3001), `apps/driver` (3002)
+- Packages: `packages/ui`, `packages/lib`
+
+## Tech Stack
+- Next.js 15 (App Router)
+- React 18+
+- TypeScript
+- Tailwind CSS
+- Lucide React (Icons)
+- Shadcn UI (Component Library)
+
+## Guidelines
+- Use Functional Components with TypeScript
+- Prefer Server Components where possible (Next.js App Router)
+- Use strict type safety
+- Follow SOLID principles
+- Maintain clean, documented code

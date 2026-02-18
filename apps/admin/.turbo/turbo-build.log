@@ -1,0 +1,32 @@
+
+> @greenlink/admin@0.1.0 build C:\develop\greenlink\apps\admin
+> next build
+
+  ▲ Next.js 15.0.0
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Skipping linting
+   Checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/7) ...
+   Generating static pages (1/7) 
+   Generating static pages (3/7) 
+   Generating static pages (5/7) 
+ ✓ Generating static pages (7/7)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    4.4 kB          222 kB
+├ ○ /_not-found                          895 B           100 kB
+├ ○ /delivery                            5.65 kB         213 kB
+└ ○ /products                            19.6 kB         227 kB
++ First Load JS shared by all            99.2 kB
+  ├ chunks/44d9fad6-fd811f904b1c8b34.js  52.6 kB
+  ├ chunks/713-7791a6d97bedf578.js       44.7 kB
+  └ other shared chunks (total)          1.91 kB
+
+
+○  (Static)  prerendered as static content
+
