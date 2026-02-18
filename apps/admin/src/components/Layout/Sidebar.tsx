@@ -3,16 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@greenlink/ui";
-import { LayoutDashboard, Package, Truck, Settings, LogOut } from "lucide-react";
+
 
 export function Sidebar() {
     const pathname = usePathname();
 
     const menuItems = [
-        { href: "/", label: "대시보드", icon: LayoutDashboard },
-        { href: "/products", label: "상품 관리", icon: Package },
-        { href: "/delivery", label: "배송 관리", icon: Truck },
-        { href: "/settings", label: "설정", icon: Settings },
+        { href: "/", label: "대시보드", icon: "📊" },
+        { href: "/products", label: "상품 관리", icon: "📦" },
+        { href: "/delivery", label: "배송 관리", icon: "🚚" },
+        { href: "/settings", label: "설정", icon: "⚙️" },
     ];
 
     return (
@@ -38,7 +38,7 @@ export function Sidebar() {
                                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                             )}
                         >
-                            <item.icon className="w-5 h-5" />
+                            <span className="text-xl">{item.icon}</span>
                             {item.label}
                         </Link>
                     );
@@ -47,7 +47,7 @@ export function Sidebar() {
 
             <div className="p-4 border-t border-gray-100">
                 <button className="flex items-center gap-3 px-4 py-3 w-full text-sm font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                    <LogOut className="w-5 h-5" />
+                    <span className="text-xl">🚪</span>
                     로그아웃
                 </button>
             </div>

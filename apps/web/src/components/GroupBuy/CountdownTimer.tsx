@@ -8,9 +8,11 @@ interface CountdownTimerProps {
 }
 
 export function CountdownTimer({ targetDate, className }: CountdownTimerProps) {
+    const [isMounted, setIsMounted] = useState(false);
     const [timeLeft, setTimeLeft] = useState<{ h: number, m: number, s: number } | null>(null);
 
     useEffect(() => {
+        setIsMounted(true);
         const calculateTimeLeft = () => {
             const difference = +new Date(targetDate) - +new Date();
 
@@ -34,6 +36,7 @@ export function CountdownTimer({ targetDate, className }: CountdownTimerProps) {
         return () => clearInterval(timer);
     }, [targetDate]);
 
+    if (!isMounted) return null;
     if (!timeLeft) return <span className="text-gray-500">마감됨</span>;
 
     return (

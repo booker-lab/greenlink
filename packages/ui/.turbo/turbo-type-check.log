@@ -1,0 +1,13 @@
+
+> @greenlink/ui@0.0.0 type-check
+> tsc --noEmit
+
+src/components/ui/sheet.tsx(58,22): error TS2339: Property 'className' does not exist on type 'SheetContentProps'.
+src/components/ui/sheet.tsx(58,33): error TS2339: Property 'children' does not exist on type 'SheetContentProps'.
+npm error Lifecycle script `type-check` failed with error:
+npm error code 2
+npm error path C:\develop\greenlink\packages\ui
+npm error workspace @greenlink/ui@0.0.0
+npm error location C:\develop\greenlink\packages\ui
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c tsc --noEmit

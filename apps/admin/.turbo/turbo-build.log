@@ -1,13 +1,13 @@
 
-> @greenlink/admin@0.1.0 build C:\develop\greenlink\apps\admin
+> @greenlink/admin@0.1.0 build
 > next build
 
   ▲ Next.js 15.0.0
 
    Creating an optimized production build ...
  ✓ Compiled successfully
+   Skipping validation of types
    Skipping linting
-   Checking validity of types ...
    Collecting page data ...
    Generating static pages (0/7) ...
    Generating static pages (1/7) 
@@ -18,13 +18,13 @@
    Collecting build traces ...
 
 Route (app)                              Size     First Load JS
-┌ ○ /                                    4.4 kB          222 kB
-├ ○ /_not-found                          895 B           100 kB
-├ ○ /delivery                            5.65 kB         213 kB
-└ ○ /products                            19.6 kB         227 kB
+┌ ○ /                                    1.85 kB         143 kB
+├ ○ /_not-found                          896 B           100 kB
+├ ○ /delivery                            3.13 kB         147 kB
+└ ○ /products                            27.9 kB         172 kB
 + First Load JS shared by all            99.2 kB
-  ├ chunks/44d9fad6-fd811f904b1c8b34.js  52.6 kB
-  ├ chunks/713-7791a6d97bedf578.js       44.7 kB
+  ├ chunks/765-3cf97fd95b282974.js       44.6 kB
+  ├ chunks/87c73c54-2a29d73df3593039.js  52.6 kB
   └ other shared chunks (total)          1.91 kB
 
 

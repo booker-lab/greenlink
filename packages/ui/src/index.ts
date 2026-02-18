@@ -7,7 +7,6 @@ export * from "./components/ui/progress";
 export * from "./components/ui/badge";
 export * from "./components/ui/avatar";
 export * from "./components/ui/tabs";
-export * from "./components/ui/calendar";
 export * from "./components/ui/popover";
 export * from "./components/ui/table";
 export * from "./components/ui/dialog";

@@ -5,9 +5,24 @@ import { BottomNav } from "@/components/Layout/BottomNav";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#059669",
+};
+
 export const metadata: Metadata = {
-  title: "GreenLink Web",
-  description: "GreenLink Web Application",
+  title: "GreenLink",
+  description: "Hyperlocal direct transaction platform for flowers and farm products",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "GreenLink",
+  },
 };
 
 export default function RootLayout({
@@ -16,12 +31,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
-      <body className={inter.className}>
-        <main className="min-h-screen pb-16 safe-area-pb bg-gray-50">
-          {children}
-        </main>
-        <BottomNav />
+    <html lang="ko" suppressHydrationWarning>
+      <body className={`${inter.className} bg-gray-200`} suppressHydrationWarning>
+        <div className="max-w-md mx-auto min-h-screen bg-gray-50 shadow-xl relative overflow-x-hidden border-x border-gray-100" suppressHydrationWarning>
+          <main className="pb-20 safe-area-pb" suppressHydrationWarning>
+            {children}
+          </main>
+          <BottomNav />
+        </div>
       </body>
     </html>
   );

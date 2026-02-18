@@ -1,12 +1,11 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useProductStore, useOrderStore } from "@greenlink/lib/stores";
 import { DeliveryDatePicker } from "@/components/Order/DeliveryDatePicker";
 import { PaymentButton } from "@/components/Order/PaymentButton";
 import { Card, Input, Button } from "@greenlink/ui";
-import { ArrowLeft } from "lucide-react";
 
 function OrderPageContent() {
     const router = useRouter();
@@ -14,9 +13,9 @@ function OrderPageContent() {
     const productId = searchParams.get("productId");
 
     const { products } = useProductStore();
-    const { addOrder } = useOrderStore(); // Mock addOrder
+    const { addOrder } = useOrderStore();
 
-    const product = products.find(p => p.id === productId);
+    const product = products.find((p: any) => p.id === productId);
 
     const [deliveryDate, setDeliveryDate] = useState<Date | undefined>();
     const [buyerName, setBuyerName] = useState("");
@@ -26,8 +25,6 @@ function OrderPageContent() {
     const isFormValid = product && deliveryDate && buyerName && buyerPhone && address;
 
     const handlePaymentSuccess = () => {
-        // In real app, create order in store/backend
-        // addOrder({...}) 
         alert("주문이 완료되었습니다! (Mock)");
         router.push("/");
     };
@@ -39,14 +36,13 @@ function OrderPageContent() {
     return (
         <div className="pb-24 bg-gray-50 min-h-screen">
             <header className="bg-white p-4 sticky top-0 border-b border-gray-100 flex items-center gap-2">
-                <Button variant="ghost" size="icon" onClick={() => router.back()}>
-                    <ArrowLeft className="w-5 h-5" />
+                <Button variant="ghost" size="icon" {...({ onClick: () => router.back() } as any)}>
+                    ←
                 </Button>
                 <h1 className="font-bold text-lg">주문하기</h1>
             </header>
 
             <main className="p-4 space-y-6">
-                {/* Product Info */}
                 <section>
                     <h2 className="font-bold mb-2">주문 상품</h2>
                     <Card className="p-4 flex gap-3 border-none shadow-sm">
@@ -61,7 +57,6 @@ function OrderPageContent() {
                     </Card>
                 </section>
 
-                {/* Delivery Info */}
                 <section>
                     <h2 className="font-bold mb-2">배송 정보</h2>
                     <Card className="p-4 space-y-3 border-none shadow-sm bg-white">
@@ -90,7 +85,6 @@ function OrderPageContent() {
                     </Card>
                 </section>
 
-                {/* Payment */}
                 <section>
                     <h2 className="font-bold mb-2">결제 금액</h2>
                     <Card className="p-4 border-none shadow-sm bg-white">

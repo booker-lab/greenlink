@@ -1,25 +1,32 @@
 
-> @greenlink/driver@0.1.0 build C:\develop\greenlink\apps\driver
+> @greenlink/driver@0.1.0 build
 > next build
 
   ▲ Next.js 15.0.0
 
    Creating an optimized production build ...
  ✓ Compiled successfully
-   Linting and checking validity of types ...
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+   Generating static pages (0/7) ...
+   Generating static pages (1/7) 
+   Generating static pages (3/7) 
+   Generating static pages (5/7) 
+ ✓ Generating static pages (7/7)
+   Finalizing page optimization ...
+   Collecting build traces ...
 
-Failed to compile.
+Route (app)                              Size     First Load JS
+┌ ○ /                                    5.46 kB         105 kB
+├ ○ /_not-found                          896 B           100 kB
+├ ○ /delivery                            3.45 kB         117 kB
+└ ○ /login                               1.37 kB         115 kB
++ First Load JS shared by all            99.2 kB
+  ├ chunks/765-8034f170d5630d1c.js       44.6 kB
+  ├ chunks/87c73c54-0b558ed910b0e55d.js  52.6 kB
+  └ other shared chunks (total)          1.91 kB
 
-./src/app/delivery/page.tsx
-5:42  Error: 'useOrderStore' is defined but never used.  @typescript-eslint/no-unused-vars
-55:8  Warning: React Hook useMemo has a missing dependency: 'currentLocation'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
 
-./src/components/LongPressButton.tsx
-3:35  Error: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
-19:12  Error: 'isPressing' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+○  (Static)  prerendered as static content
 
-./src/components/SvgMinimap.tsx
-38:15  Error: 'padding' is assigned a value but never used.  @typescript-eslint/no-unused-vars
-
-info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
- ELIFECYCLE  Command failed with exit code 1.

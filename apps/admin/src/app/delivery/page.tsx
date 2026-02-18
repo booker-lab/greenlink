@@ -1,14 +1,12 @@
 "use client";
 
 import { useDeliveryStore } from "@greenlink/lib";
-import { Calendar, Card, CardContent, CardHeader, CardTitle, Badge, Button, Input, Label, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@greenlink/ui";
+import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Input, Label, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@greenlink/ui";
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
-import { ko } from "date-fns/locale";
 
 export default function DeliveryManagementPage() {
     const { dailyQuotas, setDailyQuota } = useDeliveryStore();
-    const [date, setDate] = useState<Date | undefined>(new Date());
+    const [dateStr, setDateStr] = useState<string>(new Date().toISOString().split('T')[0]);
     const [selectedQuota, setSelectedQuota] = useState<number>(0);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
@@ -22,10 +20,13 @@ export default function DeliveryManagementPage() {
 
     if (!mounted) return null;
 
-    const handleDateSelect = (selectedDate: Date | undefined) => {
-        setDate(selectedDate);
-        if (selectedDate) {
-            const dateStr = format(selectedDate, 'yyyy-MM-dd');
+    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newDateStr = e.target.value;
+        setDateStr(newDateStr);
+    };
+
+    const openQuotaDialog = () => {
+        if (dateStr) {
             const quota = dailyQuotas.find(q => q.date === dateStr)?.maxOrders || 50;
             setSelectedQuota(quota);
             setIsDialogOpen(true);
@@ -33,11 +34,14 @@ export default function DeliveryManagementPage() {
     };
 
     const handleSaveQuota = () => {
-        if (date) {
-            const dateStr = format(date, 'yyyy-MM-dd');
+        if (dateStr) {
             setDailyQuota(dateStr, selectedQuota);
             setIsDialogOpen(false);
         }
+    };
+
+    const formatDate = (d: string) => {
+        return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(d));
     };
 
     return (
@@ -48,25 +52,29 @@ export default function DeliveryManagementPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle>배송 일정 및 쿼터 현황</CardTitle>
+                        <CardTitle>배송 일정 및 쿼터 설정</CardTitle>
                     </CardHeader>
-                    <CardContent className="flex justify-center">
-                        <Calendar
-                            mode="single"
-                            selected={date}
-                            onSelect={handleDateSelect}
-                            className="rounded-md border"
-                            locale={ko as any}
-                            modifiers={{
-                                quotaSet: (date) => {
-                                    const dateStr = format(date, 'yyyy-MM-dd');
-                                    return !!quotas[dateStr];
-                                }
-                            }}
-                            modifiersClassNames={{
-                                quotaSet: "bg-green-100 font-bold text-green-700"
-                            }}
-                        />
+                    <CardContent className="space-y-4">
+                        <div className="flex flex-col gap-2">
+                            <Label>날짜 선택</Label>
+                            <div className="flex gap-2">
+                                <Input
+                                    type="date"
+                                    value={dateStr}
+                                    onChange={handleDateChange}
+                                    className="block w-full"
+                                />
+                                <Button onClick={openQuotaDialog}>설정</Button>
+                            </div>
+                        </div>
+
+                        <div className="p-4 bg-gray-50 rounded-lg text-center">
+                            <p className="text-sm text-gray-500 mb-1">{formatDate(dateStr)}</p>
+                            <p className="font-bold text-2xl text-green-700">
+                                {quotas[dateStr] ? `${quotas[dateStr]}건` : '기본 50건'}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-2">설정된 배송 쿼터</p>
+                        </div>
                     </CardContent>
                 </Card>
 
@@ -77,10 +85,10 @@ export default function DeliveryManagementPage() {
                     <CardContent>
                         <div className="space-y-4">
                             <div className="p-4 bg-gray-50 rounded-lg">
-                                <h3 className="font-bold mb-2">오늘 ({format(new Date(), 'yyyy-MM-dd')})</h3>
+                                <h3 className="font-bold mb-2">오늘 ({new Date().toISOString().split('T')[0]})</h3>
                                 <div className="flex justify-between items-center text-sm">
                                     <span>설정된 쿼터:</span>
-                                    <Badge>{quotas[format(new Date(), 'yyyy-MM-dd')] || 50}건</Badge>
+                                    <Badge>{quotas[new Date().toISOString().split('T')[0]] || 50}건</Badge>
                                 </div>
                                 {/* Mock used capacity */}
                                 <div className="flex justify-between items-center text-sm mt-2">
@@ -100,7 +108,7 @@ export default function DeliveryManagementPage() {
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{date ? format(date, 'yyyy년 MM월 dd일') : ''} 배송 쿼터 설정</DialogTitle>
+                        <DialogTitle>{dateStr ? formatDate(dateStr) : ''} 배송 쿼터 설정</DialogTitle>
                         <DialogDescription>
                             해당 날짜에 처리 가능한 최대 배송 건수를 입력하세요.
                         </DialogDescription>

@@ -2,7 +2,7 @@
 
 import { useGroupBuyStore } from "@greenlink/lib/stores";
 import { GroupBuyCard } from "@/components/GroupBuy/GroupBuyCard";
-import { Badge } from "@greenlink/ui";
+import { Button } from "@greenlink/ui";
 
 export default function GroupBuyPage() {
     const { deals } = useGroupBuyStore();

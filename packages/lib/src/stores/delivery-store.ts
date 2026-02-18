@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { DeliveryTask, DailyQuota, DeliveryStatus } from '../types';
 import { MOCK_DELIVERY_TASKS } from '../constants';
-import { isSunday, format, addDays, startOfToday } from 'date-fns';
+
 
 interface DeliveryState {
     tasks: DeliveryTask[];
@@ -16,11 +16,19 @@ interface DeliveryState {
 
 const generateInitialQuotas = (): DailyQuota[] => {
     const quotas: DailyQuota[] = [];
-    const today = startOfToday();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     for (let i = 0; i < 14; i++) {
-        const date = addDays(today, i);
-        const dateStr = format(date, 'yyyy-MM-dd');
-        const isSun = isSunday(date);
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
+
+        const isSun = date.getDay() === 0;
         const isSat = date.getDay() === 6;
         quotas.push({
             date: dateStr,

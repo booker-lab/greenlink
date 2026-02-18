@@ -2,36 +2,46 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Heart, User, Sparkles } from "lucide-react";
 import { cn } from "@greenlink/ui";
+import { useState, useEffect } from "react";
 
 export function BottomNav() {
     const pathname = usePathname();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const navItems = [
-        { href: "/", label: "홈", icon: Home },
-        { href: "/search", label: "검색", icon: Search },
-        { href: "/group-buy", label: "공구", icon: Sparkles }, // Featured feature
-        // { href: "/wishlist", label: "찜", icon: Heart }, // MVP excluded
-        { href: "/order", label: "주문내역", icon: User }, // Simplified My Page to Order History for MVP
+        { href: "/", label: "홈", icon: "🏠" },
+        { href: "/search", label: "검색", icon: "🔍" },
+        { href: "/group-buy", label: "공구", icon: "✨" },
+        { href: "/order", label: "주문내역", icon: "👤" },
     ];
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 safe-area-pb z-50">
-            <div className="flex justify-around items-center">
+        <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white/80 backdrop-blur-md border-t border-gray-100 py-3 safe-area-pb z-50 shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
+            <div className="flex justify-around items-center px-2">
                 {navItems.map((item) => {
-                    const isActive = pathname === item.href;
+                    const isActive = isMounted && pathname === item.href;
                     return (
                         <Link
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                "flex flex-col items-center gap-1 p-2 min-w-[60px]",
-                                isActive ? "text-green-600" : "text-gray-400 hover:text-gray-600"
+                                "flex flex-col items-center gap-1.5 p-1 transition-all duration-200",
+                                isActive ? "text-green-600 scale-105" : "text-gray-400 hover:text-gray-600"
                             )}
                         >
-                            <item.icon className={cn("w-6 h-6", isActive && "fill-current")} strokeWidth={isActive ? 2.5 : 2} />
-                            <span className="text-[10px] font-medium">{item.label}</span>
+                            <span className={cn(
+                                "text-2xl transition-all",
+                                !isActive && "grayscale opacity-50"
+                            )}>{item.icon}</span>
+                            <span className={cn(
+                                "text-[11px] font-bold tracking-tight transition-colors",
+                                isActive ? "text-green-700" : "text-gray-400"
+                            )}>{item.label}</span>
                         </Link>
                     );
                 })}

@@ -1,9 +1,10 @@
-"use client";
 
 import { Card } from "@greenlink/ui";
 import { Product } from "@greenlink/lib/types";
 import { cn } from "@greenlink/ui";
 import Link from "next/link";
+
+
 
 interface ProductCardProps {
     product: Product;
@@ -11,6 +12,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, className }: ProductCardProps) {
+
     return (
         <Link href={`/product/${product.id}`} className={cn("block", className)}>
             <Card className="overflow-hidden border-none shadow-none hover:shadow-sm transition-shadow">
@@ -21,8 +23,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
                     ) : (
                         <span className="text-6xl">🌿</span> // Default placeholder
                     )}
-
-                    {/* Badge for Eco/Local if needed */}
                 </div>
                 <div className="space-y-1">
                     <p className="text-xs text-gray-500">{product.farmId} {/* Resolve farm name later via store or prop */}</p>

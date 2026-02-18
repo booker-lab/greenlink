@@ -1,26 +1,20 @@
-"use client";
-
-import { useProductStore, useGroupBuyStore } from "@greenlink/lib/stores";
+import { MOCK_PRODUCTS, MOCK_GROUP_BUYS } from "@greenlink/lib/constants";
 import { ProductCard } from "@/components/Product/ProductCard";
 import { GroupBuyCard } from "@/components/GroupBuy/GroupBuyCard";
 import { Button } from "@greenlink/ui";
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
 
 export default function Home() {
-  const { products } = useProductStore();
-  const { deals } = useGroupBuyStore();
-
-  const featuredProducts = products.slice(0, 4);
-  const closingDeals = deals.filter(d => d.status === 'RECRUITING').slice(0, 2);
+  const featuredProducts = MOCK_PRODUCTS.slice(0, 4);
+  const closingDeals = MOCK_GROUP_BUYS.filter((d: any) => d.status === 'RECRUITING').slice(0, 2);
 
   return (
     <div className="space-y-6 pb-8">
       {/* Banner */}
-      <section className="relative h-48 bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center text-white p-6">
-        <div className="space-y-2 text-center">
-          <h1 className="text-2xl font-bold">오늘 막 수확한 신선함 🌿</h1>
-          <p className="text-green-100 text-sm">농장 직송으로 더 저렴하게!</p>
+      <section className="relative h-40 bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center text-white p-6 shadow-inner">
+        <div className="space-y-1 text-center">
+          <h1 className="text-xl font-bold tracking-tight">오늘 막 수확한 신선함 🌿</h1>
+          <p className="text-green-50 text-xs font-medium">농장 직송으로 더 저렴하게!</p>
         </div>
       </section>
 
@@ -28,15 +22,14 @@ export default function Home() {
       <section className="px-4 space-y-3">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-bold flex items-center gap-2">
-            <Sparkles className="text-yellow-500 w-5 h-5" />
-            마감 임박 공구
+            ✨ 마감 임박 공구
           </h2>
           <Link href="/group-buy" className="text-sm text-gray-500 flex items-center">
-            더보기 <ArrowRight className="w-4 h-4" />
+            더보기 →
           </Link>
         </div>
         <div className="space-y-3">
-          {closingDeals.map(deal => (
+          {closingDeals.map((deal: any) => (
             <GroupBuyCard key={deal.id} deal={deal} />
           ))}
         </div>
@@ -47,11 +40,11 @@ export default function Home() {
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-bold">인기 상품 🔥</h2>
           <Link href="/category" className="text-sm text-gray-500 flex items-center">
-            더보기 <ArrowRight className="w-4 h-4" />
+            더보기 →
           </Link>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          {featuredProducts.map(product => (
+          {featuredProducts.map((product: any) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

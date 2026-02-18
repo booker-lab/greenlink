@@ -48,7 +48,7 @@ export interface Product {
     createdAt: string;
 }
 
-export type OrderStatus = 'ORDERED' | 'PREPARING' | 'DISPATCHED' | 'DELIVERING' | 'COMPLETED' | 'CANCELLED';
+export type OrderStatus = 'ORDERED' | 'PREPARING' | 'DISPATCHED' | 'DELIVERING' | 'COMPLETED' | 'CANCELLED' | 'RECRUITING' | 'GOAL_MET';
 
 export interface Order {
     id: string;

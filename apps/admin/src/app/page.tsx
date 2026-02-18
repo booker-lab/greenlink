@@ -3,7 +3,6 @@
 import { useOrderStore, useProductStore } from "@greenlink/lib";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@greenlink/ui";
 import { GreenTemperatureGauge } from "@/components/Dashboard/GreenTemperatureGauge";
-import { ArrowRight, Package, ShoppingCart, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -46,7 +45,7 @@ export default function DashboardPage() {
           <Card className="bg-white border-none shadow-sm ring-1 ring-gray-100">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">총 매출액</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">📈</span>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalSales.toLocaleString()}원</div>
@@ -57,7 +56,7 @@ export default function DashboardPage() {
           <Card className="bg-white border-none shadow-sm ring-1 ring-gray-100">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">신규 주문</CardTitle>
-              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">🛒</span>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{pendingOrders}건</div>
@@ -71,7 +70,7 @@ export default function DashboardPage() {
           <Card className="bg-white border-none shadow-sm ring-1 ring-gray-100">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">등록된 상품</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">📦</span>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{products.length}개</div>
@@ -86,7 +85,7 @@ export default function DashboardPage() {
       {/* Recent Orders (Placeholder) */}
       <h2 className="text-lg font-bold mt-8">최근 주문 내역</h2>
       <Card className="bg-white border-none shadow-sm ring-1 ring-gray-100 p-8 text-center text-gray-400">
-        <ShoppingCart className="w-12 h-12 mx-auto mb-2 opacity-20" />
+        <div className="text-4xl mb-2 opacity-50">🛒</div>
         <p>최근 주문 내역이 없습니다.</p>
       </Card>
     </div>

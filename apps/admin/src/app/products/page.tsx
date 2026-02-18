@@ -6,7 +6,7 @@ import {
     Button, Badge,
     Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger
 } from "@greenlink/ui";
-import { Plus, Edit, Trash2 } from "lucide-react";
+
 import { useState, useEffect } from "react";
 import { ProductForm } from "@/components/Product/ProductForm";
 
@@ -28,7 +28,7 @@ export default function ProductsPage() {
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
                         <Button className="bg-green-600 hover:bg-green-700">
-                            <Plus className="w-4 h-4 mr-2" /> 상품 등록
+                            <span className="mr-2">➕</span> 상품 등록
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
@@ -76,7 +76,7 @@ export default function ProductsPage() {
                                 <TableCell className="text-right">
                                     <div className="flex justify-end gap-2">
                                         <Button variant="ghost" size="icon" className="h-8 w-8">
-                                            <Edit className="w-4 h-4" />
+                                            <span>✏️</span>
                                         </Button>
                                         <Button
                                             variant="ghost"
@@ -86,7 +86,7 @@ export default function ProductsPage() {
                                                 if (confirm('정말 삭제하시겠습니까?')) removeProduct(product.id);
                                             }}
                                         >
-                                            <Trash2 className="w-4 h-4" />
+                                            <span>🗑️</span>
                                         </Button>
                                     </div>
                                 </TableCell>

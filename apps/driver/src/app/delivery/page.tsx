@@ -7,8 +7,6 @@ import { SvgMinimap } from "@/components/SvgMinimap";
 import { LongPressButton } from "@/components/LongPressButton";
 import { optimizeRoute } from "@/lib/route-optimizer";
 import { Button, Card } from "@greenlink/ui";
-import { MapPin, Phone, Box, Navigation } from "lucide-react";
-import { format } from "date-fns";
 import { DeliveryStatus, DeliveryTask } from "@greenlink/lib/types";
 
 // Helper type for optimization
@@ -123,11 +121,11 @@ export default function DeliveryPage() {
                                         <p className="text-gray-300 text-sm mb-4">{currentTask.deliveryAddress}</p>
                                         <div className="flex gap-2">
                                             <Button variant="outline" className="flex-1 border-gray-600 hover:bg-gray-700" onClick={() => window.open(`kakaomap://route?ep=${currentTask.deliveryCoords.lat},${currentTask.deliveryCoords.lng}&by=CAR`, '_blank')}>
-                                                <Navigation className="w-4 h-4 mr-2" />
+                                                <span className="mr-2">🧭</span>
                                                 길안내
                                             </Button>
                                             <Button variant="outline" className="flex-1 border-gray-600 hover:bg-gray-700" onClick={() => window.location.href = `tel:${currentTask.recipientPhone}`}>
-                                                <Phone className="w-4 h-4 mr-2" />
+                                                <span className="mr-2">📞</span>
                                                 전화
                                             </Button>
                                         </div>
@@ -164,16 +162,18 @@ export default function DeliveryPage() {
                                             </span>
                                             <h3 className="font-bold">{task.recipientName}</h3>
                                         </div>
-                                        <span className="text-xs text-gray-400">{format(new Date(task.createdAt), 'MM.dd')}</span>
+                                        <span className="text-xs text-gray-400">
+                                            {new Intl.DateTimeFormat('ko-KR', { month: '2-digit', day: '2-digit' }).format(new Date(task.createdAt))}
+                                        </span>
                                     </div>
 
                                     <div className="space-y-2 mb-4">
                                         <p className="text-sm text-gray-300 flex items-start gap-2">
-                                            <MapPin className="w-4 h-4 mt-0.5 text-gray-500 shrink-0" />
+                                            <span className="text-gray-500 shrink-0">📍</span>
                                             {task.deliveryAddress}
                                         </p>
                                         <p className="text-sm text-gray-300 flex items-start gap-2">
-                                            <Box className="w-4 h-4 mt-0.5 text-gray-500 shrink-0" />
+                                            <span className="text-gray-500 shrink-0">📦</span>
                                             {task.items.join(", ")}
                                         </p>
                                     </div>
@@ -187,7 +187,7 @@ export default function DeliveryPage() {
                                                     className="flex-1 bg-gray-700 hover:bg-gray-600 h-9"
                                                     onClick={() => window.open(`kakaomap://route?ep=${task.deliveryCoords.lat},${task.deliveryCoords.lng}&by=CAR`, '_blank')}
                                                 >
-                                                    <Navigation className="w-4 h-4 mr-1" /> 길안내
+                                                    <span className="mr-1">🧭</span> 길안내
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
@@ -195,7 +195,7 @@ export default function DeliveryPage() {
                                                     className="flex-1 bg-gray-700 hover:bg-gray-600 h-9"
                                                     onClick={() => window.location.href = `tel:${task.recipientPhone}`}
                                                 >
-                                                    <Phone className="w-4 h-4 mr-1" /> 전화
+                                                    <span className="mr-1">📞</span> 전화
                                                 </Button>
                                             </div>
 
@@ -217,7 +217,7 @@ export default function DeliveryPage() {
 
                                     {activeTab === "DONE" && (
                                         <div className="mt-2 pt-2 border-t border-gray-700 text-xs text-emerald-400 flex items-center gap-1">
-                                            ✅ 배송 완료 ({task.deliveredAt ? format(new Date(task.deliveredAt), 'HH:mm') : '-'})
+                                            ✅ 배송 완료 ({task.deliveredAt ? new Intl.DateTimeFormat('ko-KR', { hour: '2-digit', minute: '2-digit' }).format(new Date(task.deliveredAt)) : '-'})
                                         </div>
                                     )}
                                 </div>
