@@ -27,11 +27,12 @@ if not exist "node_modules\." (
 )
 
 echo [3/3] Starting Consumer Web App...
+if not exist "logs" mkdir logs
 start "" "http://localhost:3000"
 
 :: Execute
 echo [EXEC] Running: npm run dev --workspace=@greenlink/web
-call npm run dev --workspace=@greenlink/web
+call npm run dev --workspace=@greenlink/web 2>&1 ^| tee logs\web.log
 
 if %errorlevel% neq 0 (
     echo.
