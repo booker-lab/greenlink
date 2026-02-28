@@ -1,0 +1,44 @@
+
+> @greenlink/web@0.1.0 lint
+> next lint
+
+
+./src/app/category/[id]/page.tsx
+5:10  Warning: 'ZeroInventoryItem' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/group-buy/[id]/page.tsx
+3:15  Warning: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
+13:33  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+27:143  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+43:119  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/mypage/page.tsx
+6:8  Warning: 'Image' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/order/page.tsx
+16:13  Warning: 'addOrder' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+18:39  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+39:94  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/page.tsx
+4:10  Warning: 'Button' is defined but never used.  @typescript-eslint/no-unused-vars
+10:51  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+98:36  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+175:43  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/search/page.tsx
+12:50  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+40:164  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+52:53  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/GroupBuy/GroupBuyCard.tsx
+2:16  Warning: 'Button' is defined but never used.  @typescript-eslint/no-unused-vars
+2:24  Warning: 'Progress' is defined but never used.  @typescript-eslint/no-unused-vars
+4:8  Warning: 'Link' is defined but never used.  @typescript-eslint/no-unused-vars
+19:283  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+28:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/Order/DeliveryDatePicker.tsx
+35:30  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules

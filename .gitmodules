@@ -1,0 +1,6 @@
+[submodule ".agent/skills_repo"]
+	path = .agent/skills_repo
+	url = https://github.com/sickn33/antigravity-awesome-skills.git
+[submodule ".agents/tech-stack-organizer"]
+	path = .agents/tech-stack-organizer
+	url = https://github.com/savior714/tech-stack-organizer

@@ -1,0 +1,9 @@
+{
+    "accessibility.signals.chatUserActionRequired": {
+        "sound": "on"
+    },
+    "accessibility.signalOptions.volume": 50,
+    "accessibility.signals.chatRequestSent": {
+        "sound": "on"
+    }
+}

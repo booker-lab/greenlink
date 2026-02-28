@@ -1,0 +1,29 @@
+{
+  "name": "greenlink-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
+    "type-check": "turbo run type-check",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "dev:web": "turbo run dev --filter=@greenlink/web",
+    "dev:admin": "turbo run dev --filter=@greenlink/admin",
+    "dev:driver": "turbo run dev --filter=@greenlink/driver"
+  },
+  "devDependencies": {
+    "turbo": "^2.8.10",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "packageManager": "npm@10.8.2",
+  "engines": {
+    "node": ">=18"
+  }
+}

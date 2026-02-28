@@ -1,0 +1,60 @@
+{
+    "name": "@greenlink/lib",
+    "version": "0.0.0",
+    "private": true,
+    "exports": {
+        ".": "./src/index.ts",
+        "./api": "./src/api/index.ts",
+        "./stores": "./src/stores/index.ts",
+        "./types": "./src/types/index.ts",
+        "./utils": "./src/utils/index.ts",
+        "./constants": "./src/constants/index.ts",
+        "./constants/*": "./src/constants/*"
+    },
+    "typesVersions": {
+        "*": {
+            "api": [
+                "src/api/index.ts"
+            ],
+            "stores": [
+                "src/stores/index.ts"
+            ],
+            "types": [
+                "src/types/index.ts"
+            ],
+            "utils": [
+                "src/utils/index.ts"
+            ],
+            "constants": [
+                "src/constants/index.ts"
+            ],
+            "constants/*": [
+                "src/constants/*"
+            ],
+            "*": [
+                "src/*"
+            ]
+        }
+    },
+    "scripts": {
+        "lint": "eslint . --ext .ts,.tsx --max-warnings 10",
+        "type-check": "tsc --noEmit",
+        "clean": "rm -rf .turbo node_modules dist"
+    },
+    "dependencies": {
+        "@supabase/ssr": "^0.8.0",
+        "@supabase/supabase-js": "^2.97.0",
+        "axios": "^1.13.5",
+        "zod": "^3.21.0",
+        "zustand": "^4.4.0"
+    },
+    "devDependencies": {
+        "@testing-library/react": "^16.3.2",
+        "@typescript-eslint/eslint-plugin": "^8.56.0",
+        "@typescript-eslint/parser": "^8.56.0",
+        "eslint": "^8.57.0",
+        "jsdom": "^28.1.0",
+        "typescript": "^5.0.0",
+        "vitest": "^4.0.18"
+    }
+}

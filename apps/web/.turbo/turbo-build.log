@@ -1,0 +1,53 @@
+
+> @greenlink/web@0.1.0 build
+> next build
+
+  ▲ Next.js 15.0.0
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+   Generating static pages (0/15) ...
+   Generating static pages (3/15) 
+   Generating static pages (7/15) 
+   Generating static pages (11/15) 
+ ✓ Generating static pages (15/15)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    1.81 kB         122 kB
+├ ○ /_not-found                          145 B          99.3 kB
+├ ƒ /api/delivery/complete               145 B          99.3 kB
+├ ƒ /api/payment/webhook                 145 B          99.3 kB
+├ ƒ /auth/callback                       145 B          99.3 kB
+├ ○ /category                            5.83 kB         174 kB
+├ ƒ /category/[id]                       4.47 kB         170 kB
+├ ƒ /farm/[id]                           4.92 kB         172 kB
+├ ○ /group-buy                           1.98 kB         177 kB
+├ ƒ /group-buy/[id]                      3.28 kB         173 kB
+├ ○ /login                               6.31 kB         169 kB
+├ ○ /mypage                              7.04 kB         163 kB
+├ ○ /order                               26.2 kB         193 kB
+├ ○ /payment                             5.93 kB         165 kB
+├ ƒ /product/[id]                        2.54 kB         114 kB
+└ ○ /search                              5.44 kB         187 kB
++ First Load JS shared by all            99.2 kB
+  ├ chunks/765-584d8ad416208125.js       44.6 kB
+  ├ chunks/87c73c54-f184ceebf304fc42.js  52.6 kB
+  └ other shared chunks (total)          1.92 kB
+
+
+ƒ Middleware                             79.6 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+npm notice
+npm notice New minor version of npm available! 11.6.2 -> 11.11.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.11.0
+npm notice To update run: npm install -g npm@11.11.0
+npm notice

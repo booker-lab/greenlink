@@ -1,0 +1,62 @@
+
+> @greenlink/web@0.1.0 dev
+> next dev -p 3000
+
+  ▲ Next.js 15.0.0
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1787ms
+ ✓ Compiled /src/middleware in 424ms (141 modules)
+[Middleware] No session for path: /
+ ○ Compiling / ...
+ ✓ Compiled / in 3.5s (922 modules)
+[Middleware] No session for path: /manifest.json
+ GET / 200 in 4317ms
+ ✓ Compiled in 860ms (399 modules)
+ ✓ Compiled /favicon.ico in 248ms (564 modules)
+ GET /favicon.ico 200 in 344ms
+[Middleware] No session for path: /category
+ ○ Compiling /category ...
+ ✓ Compiled /category in 533ms (958 modules)
+ GET /category 200 in 620ms
+[Middleware] No session for path: /manifest.json
+[Middleware] No session for path: /category/413253ca-1ef1-4f0d-ba2a-c4bf1e39edd1
+ ○ Compiling /category/[id] ...
+ ✓ Compiled /category/[id] in 661ms (984 modules)
+ GET /category/413253ca-1ef1-4f0d-ba2a-c4bf1e39edd1 200 in 2283ms
+[Middleware] No session for path: /manifest.json
+[Middleware] No session for path: /manifest.json
+[Middleware] No session for path: /category/d7ba5861-6c3a-46d8-a732-ccfa39f6a3f6
+ GET /category/d7ba5861-6c3a-46d8-a732-ccfa39f6a3f6 200 in 1164ms
+[Middleware] No session for path: /manifest.json
+[Middleware] No session for path: /payment
+ ○ Compiling /payment ...
+ ✓ Compiled /payment in 610ms (990 modules)
+ GET /payment?itemId=d7ba5861-6c3a-46d8-a732-ccfa39f6a3f6&qty=1 200 in 720ms
+[Middleware] No session for path: /manifest.json
+[Middleware] No session for path: /manifest.json
+[Middleware] No session for path: /mypage
+[Middleware] No session for path: /login
+ ○ Compiling /login ...
+ ✓ Compiled /login in 639ms (1006 modules)
+ GET /login?next=%2Fmypage 200 in 687ms
+[Middleware] No session for path: /manifest.json
+[Middleware] No session for path: /auth/callback
+ ○ Compiling /auth/callback ...
+ ✓ Compiled /auth/callback in 885ms (1020 modules)
+[Auth Callback] Login success. Cookies set in redirectResponse. Target: /mypage
+ GET /auth/callback?code=8143f840-dc43-45e6-8a34-5918b72c7da9 307 in 1162ms
+[Middleware] Session detected for user: 6b827711-6bcc-4922-93d4-fe5ce2fc7406 on path: /mypage
+ ○ Compiling /mypage ...
+ ✓ Compiled /mypage in 637ms (1028 modules)
+ GET /mypage 200 in 946ms
+[Middleware] No session for path: /manifest.json
+[Middleware] Session detected for user: 6b827711-6bcc-4922-93d4-fe5ce2fc7406 on path: /api/auth/logout
+ ○ Compiling /api/auth/logout ...
+ ✓ Compiled /api/auth/logout in 621ms (992 modules)
+ POST /api/auth/logout 200 in 973ms
+[Middleware] No session for path: /login
+ GET /login 200 in 174ms
+[Middleware] No session for path: /manifest.json

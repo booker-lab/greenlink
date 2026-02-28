@@ -1,0 +1,19 @@
+@import "@greenlink/ui/styles.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* IDE/확장 프로그램이 주입하는 user-select:auto 를 CSS로 원천 차단 */
+* {
+    user-select: none !important;
+}
+
+input,
+textarea,
+[contenteditable] {
+    user-select: text !important;
+}
+
+.safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+}

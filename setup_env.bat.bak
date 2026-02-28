@@ -1,0 +1,50 @@
+﻿@echo off
+setlocal enabledelayedexpansion
+chcp 949 >nul
+
+echo ======================================================
+echo  GreenLink: Development Environment Setup (Laptop)
+echo ======================================================
+
+:: 1. 필수 도구 체크
+echo [1/4] Checking Prerequisites...
+where node >nul 2>nul || (echo [ERROR] Node.js is not installed. && pause && exit /b 1)
+where npm >nul 2>nul || (echo [ERROR] npm is not installed. && pause && exit /b 1)
+where python >nul 2>nul || (echo [ERROR] Python is not installed. && pause && exit /b 1)
+echo [SUCCESS] Found Node, npm, and Python.
+
+:: 2. uv 설치 확인 및 설치
+echo [2/4] Checking 'uv' (Python package manager)...
+where uv >nul 2>nul
+if %ERRORLEVEL% neq 0 (
+    echo [INFO] 'uv' not found. Installing uv...
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+    set "PATH=%USERPROFILE%\.cargo\bin;%PATH%"
+) else (
+    echo [SUCCESS] 'uv' is already installed.
+)
+
+:: 3. Node.js 의존성 설치
+echo [3/4] Installing Node.js dependencies (npm)...
+call npm install
+if %ERRORLEVEL% neq 0 (echo [ERROR] npm install failed. && pause && exit /b 1)
+
+:: 4. Python 가상환경 및 의존성 설치
+echo [4/4] Setting up Python virtual environment...
+if exist .venv (
+    echo [INFO] Existing .venv found. Re-syncing...
+) else (
+    call uv venv .venv
+)
+
+echo [INFO] Installing Python packages from requirements.txt...
+call uv pip install -r requirements.txt
+if %ERRORLEVEL% neq 0 (echo [WARNING] Some python packages failed to install. Check requirements.txt)
+
+echo.
+echo ======================================================
+echo  [SUCCESS] Environment setup complete!
+echo  Please copy your .env.local files manually.
+echo ======================================================
+pause
+

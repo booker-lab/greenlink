@@ -1,0 +1,38 @@
+
+> @greenlink/driver@0.1.0 build
+> next build
+
+  ▲ Next.js 15.0.0
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+   Generating static pages (0/7) ...
+   Generating static pages (1/7) 
+   Generating static pages (3/7) 
+   Generating static pages (5/7) 
+ ✓ Generating static pages (7/7)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    5.46 kB         105 kB
+├ ○ /_not-found                          896 B           100 kB
+├ ○ /delivery                            3.45 kB         173 kB
+└ ○ /login                               1.37 kB         171 kB
++ First Load JS shared by all            99.2 kB
+  ├ chunks/765-8034f170d5630d1c.js       44.6 kB
+  ├ chunks/87c73c54-0b558ed910b0e55d.js  52.6 kB
+  └ other shared chunks (total)          1.91 kB
+
+
+○  (Static)  prerendered as static content
+
+npm notice
+npm notice New minor version of npm available! 11.6.2 -> 11.11.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.11.0
+npm notice To update run: npm install -g npm@11.11.0
+npm notice

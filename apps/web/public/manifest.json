@@ -1,0 +1,16 @@
+{
+    "name": "GreenLink",
+    "short_name": "GreenLink",
+    "description": "하이퍼로컬 화훼·농수산 직거래 플랫폼",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#059669",
+    "icons": [
+        {
+            "src": "/favicon.ico",
+            "sizes": "any",
+            "type": "image/x-icon"
+        }
+    ]
+}

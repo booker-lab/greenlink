@@ -1,0 +1,4 @@
+
+> @greenlink/lib@0.0.0 type-check
+> tsc --noEmit
+
