@@ -105,3 +105,21 @@ avigator.locks占쏙옙 占쏙옙占쏙옙占싹곤옙 占쏙옙占쏙옙화占싹울옙 "4占쏙옙 占쏙옙
 
 ### [Technical Note]
 - 모든 장애 해결은 '추측'이 아닌 '물리적 숫자'와 '빌드 테스트'로 증명됨. 이제 시스템은 로그아웃/로그인 전환 시 어떠한 상품 유실이나 세션 꼬임 없이 쾌적하게 동작함.
+  
+## [Antigravity Task] - 2026-03-02 패키지 의존성 리팩토링  
+### [Context]  
+- greenlink monorepo의 패키지 의존성 전면 감사 및 리팩토링 요청  
+### [Action]  
+- packages/ui: react/react-dom을 peerDependencies로 격하, eslint-config-next 제거, @hookform/resolvers 누락 추가  
+- apps/*: @supabase 중복 제거(web), react-hook-form/zod 중복 제거(admin), lucide-react 명시(web)  
+- 전체: react@19.0.0-rc → 19.2.4 정식화, next@15.0.0 → 15.5.12 보안 업그레이드  
+- @types/react: npm:types-react 알리아스 → 직접 19.2.0 정식화  
+- tsconfig root target es5 → ES2017 통일  
+- turbo.json type-check에 dependsOn type-check 추가  
+- .npmrc 생성: legacy-peer-deps=true (react rc 버전 peer 충돌 방지 기반 남김)  
+- npm audit fix: 0 vulnerabilities 달성  
+### [Status]  
+- 전체 type-check 5/5 성공, 0 vulnerabilities  
+### [Technical Note]  
+- react@19 RC 버전은 semver prerelease 규칙으로 19 peer 충족 불가, 정식 버전 업그레이드가 근본 해결책  
+- test-db/route.ts 타입 에러(기존 버그) 함께 수정 
