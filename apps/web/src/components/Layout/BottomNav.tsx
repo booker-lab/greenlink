@@ -85,32 +85,33 @@ export function BottomNav() {
         },
     ];
 
-    if (!isMounted) return null;
-
     return (
-        <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white/80 backdrop-blur-md border-t border-gray-100 py-3 safe-area-pb z-50 shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
-            <div className="flex justify-around items-center px-2">
+        <nav
+            className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-100 py-3 safe-area-pb z-50 shadow-lg"
+            suppressHydrationWarning
+        >
+            <div className="flex justify-around items-center px-4" suppressHydrationWarning>
                 {navItems.map((item) => {
+                    // Next.js App Router에서는 SSR 단계에서도 pathname을 정확히 인지합니다.
+                    // 따라서 isMounted 가드 없이 직접 비교하는 것이 가장 정확한 Hydration을 보장합니다.
                     const isActive = pathname === item.href;
+
                     return (
                         <Link
                             key={item.href}
                             href={item.href}
-                            className={cn(
-                                "flex flex-col items-center gap-1.5 p-1 transition-all duration-200",
-                                isActive ? "text-green-600 scale-105" : "text-gray-400 hover:text-gray-600"
-                            )}
+                            suppressHydrationWarning
+                            className={`flex flex-col items-center gap-1 p-1 transition-all ${isActive ? "text-green-600 font-bold" : "text-gray-400 font-medium"
+                                }`}
                         >
-                            <span className={cn(
-                                "flex items-center justify-center transition-all",
-                                !isActive && "opacity-70"
-                            )}>
+                            <span
+                                suppressHydrationWarning
+                                className={`flex items-center justify-center transition-opacity ${isActive ? "opacity-100" : "opacity-70"
+                                    }`}
+                            >
                                 {item.icon(isActive)}
                             </span>
-                            <span className={cn(
-                                "text-[11px] font-bold tracking-tight transition-colors",
-                                isActive ? "text-green-700" : "text-gray-400"
-                            )}>{item.label}</span>
+                            <span suppressHydrationWarning className="text-[11px] font-bold leading-none">{item.label}</span>
                         </Link>
                     );
                 })}

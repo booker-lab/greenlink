@@ -157,7 +157,8 @@ class ApiSkeleton {
                 .from('zero_inventory_items')
                 .select('id, item_nm, category_id, qty, avg_cost, selling_price, current_participants, target_participants, status, image_url, metadata')
                 .eq('category_id', categoryId)
-                .order('created_at', { ascending: false }) as any);
+                .order('created_at', { ascending: false }) as any)
+                .abortSignal(AbortSignal.timeout(4000));
 
             if (error) {
                 console.warn(`[API Trace] ${categoryId} - Supabase Error:`, error.message);

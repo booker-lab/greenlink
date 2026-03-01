@@ -194,7 +194,7 @@ export default function CategoryPage() {
                     </div>
                 )}
 
-                {loading ? (
+                {loading && items.length === 0 ? (
                     <div className="flex justify-center items-center py-20">
                         <div className="w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin" />
                     </div>
@@ -205,9 +205,11 @@ export default function CategoryPage() {
                                 <ZeroInventoryCard key={item.id} item={item} />
                             ))
                         ) : (
-                            <div className="col-span-2 text-center py-10 text-gray-400">
-                                해당 필터 조건에 모집 중인 상품이 없습니다.
-                            </div>
+                            !loading && (
+                                <div className="col-span-2 text-center py-10 text-gray-400">
+                                    해당 필터 조건에 모집 중인 상품이 없습니다.
+                                </div>
+                            )
                         )}
                     </div>
                 )}

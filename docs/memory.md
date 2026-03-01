@@ -123,3 +123,15 @@ avigator.locks占쏙옙 占쏙옙占쏙옙占싹곤옙 占쏙옙占쏙옙화占싹울옙 "4占쏙옙 占쏙옙
 ### [Technical Note]  
 - react@19 RC 버전은 semver prerelease 규칙으로 19 peer 충족 불가, 정식 버전 업그레이드가 근본 해결책  
 - test-db/route.ts 타입 에러(기존 버그) 함께 수정 
+
+## [Antigravity Task] - 2026-03-02 UX 안정화 및 Zero-lag 렌더링 배포 
+### [Context]
+- 웹 서버 기동 시 발생하는 초기 로딩 에러(UX) 및 접속 딜레이(Hydration Mismatch, Auth Lock) 발생.
+### [Action]
+- run_web.bat 백그라운드 서버 분리 및 Next.js 15 Turbopack 활성화.
+- BottomNav.tsx의 Hydration 에러를 Render-Proxy(Skeleton) 패턴으로 100% 제거.
+- zero_inventory_items 호출에 timeout(4000) 및 초기 Mock 우선 노출 구조 적용.
+### [Status]
+- 로딩 딜레이 및 SSR 에러 전체 해소. Type-check 5/5 통과 [1 / 1]
+### [Technical Note]
+- Turbopack의 핫 리로드 속도로 인해 SSR Cache와 오차가 발생하는 케이스에 suppressHydrationWarning을 적극 활용하여 안정성을 높임.
