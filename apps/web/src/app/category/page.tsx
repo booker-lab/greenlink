@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useUserStore, greenlinkApi, ZeroInventoryItem } from "@greenlink/lib";
+import { useUserStore, greenlinkApi, ZeroInventoryItem, getSupabaseBrowserClient } from "@greenlink/lib";
 import { ZeroInventoryCard } from "@/components/GroupBuy/ZeroInventoryCard";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -41,6 +41,29 @@ export default function CategoryPage() {
     useEffect(() => {
         setFilter(null);
     }, [selectedCategory]);
+
+    // Realtime subscription: zero_inventory_items 변경 시 목록 자동 갱신
+    useEffect(() => {
+        const sbClient = getSupabaseBrowserClient();
+        const channel = sbClient
+            .channel('realtime:category:zero_inventory_items')
+            .on(
+                'postgres_changes',
+                { event: 'UPDATE', schema: 'public', table: 'zero_inventory_items' },
+                (payload) => {
+                    setItems(prev => prev.map(item =>
+                        item.id !== payload.new.id ? item : {
+                            ...item,
+                            currentParticipants: payload.new.current_participants,
+                            status: payload.new.status,
+                        }
+                    ));
+                }
+            )
+            .subscribe();
+
+        return () => { sbClient.removeChannel(channel); };
+    }, []);
 
     const filteredItems = items.filter(item => {
         if (!filter) return true;

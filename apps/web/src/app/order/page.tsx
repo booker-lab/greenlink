@@ -33,10 +33,14 @@ function OrderPageContent() {
     // 상품 정보 Fetch (greenlinkApi 사용 - useProductStore 의존성 제거)
     useEffect(() => {
         if (!itemId) { setLoading(false); return; }
+        let isMounted = true;
         greenlinkApi.getZeroInventoryItem(itemId).then((data) => {
-            setItem(data);
-            setLoading(false);
+            if (isMounted) {
+                setItem(data);
+                setLoading(false);
+            }
         });
+        return () => { isMounted = false; };
     }, [itemId]);
 
     const isFormValid = Boolean(item && buyerName.trim() && buyerPhone.trim() && address.trim() && agreed);

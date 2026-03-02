@@ -17,9 +17,8 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-:: Ensure port 3001 is clean (Optional, but node cleanup is standard)
-echo [2/3] Cleaning existing Node processes...
-taskkill /f /im node.exe /t >nul 2>&1
+echo [2/3] Cleaning existing dev server processes...
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\kill-devserver.ps1
 
 if not exist "node_modules\." (
     echo [INFO] node_modules missing. Installing dependencies...

@@ -8,7 +8,8 @@ import Image from "next/image";
 export default function MyPage() {
     const { user, isAuthenticated, isInitialized, loginWithProvider, logout } = useUserStore();
     const [orders, setOrders] = useState<Order[]>([]);
-    const [loading, setLoading] = useState(true);
+    // [최적화] 전체 페이지 스피너 제거 — 주문 목록 로딩 상태만 별도 관리
+    const [ordersLoading, setOrdersLoading] = useState(true);
     const [mounted, setMounted] = useState(false);
     const [isLoading, setIsLoading] = useState<{ google: boolean, kakao: boolean }>({ google: false, kakao: false });
     const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -19,70 +20,42 @@ export default function MyPage() {
         setMounted(true);
     }, []);
 
-    // 2. [Safety Guard] 5초 이상 로딩 시 강제 해제
+    // 2. [Safety Guard] 마운트 후 3초 이상 주문 로딩 시 강제 해제 (1회성 타이머)
     useEffect(() => {
         if (!mounted) return;
         const timer = setTimeout(() => {
-            if (loading) {
-                console.warn('[MyPage] Safety timeout triggered');
-                setLoading(false);
-            }
-        }, 5000);
+            console.warn('[MyPage] Safety timeout triggered');
+            setOrdersLoading(false);
+        }, 10000);
         return () => clearTimeout(timer);
-    }, [loading, mounted]);
+    }, [mounted]);
 
     useEffect(() => {
-        if (!mounted) return;
+        if (!mounted || !isInitialized) return;
 
-        const loadProfileData = async () => {
-            console.log('[MyPage] Sync Check:', { isInitialized, isAuthenticated, userId: user?.id });
+        console.log('[MyPage] Sync Check:', { isInitialized, isAuthenticated, userId: user?.id });
 
-            // 초기화 대기 (최대 1.5초)
-            if (!isInitialized) {
-                const retryTimer = setTimeout(() => {
-                    if (loading) setLoading(false);
-                }, 1500);
-                return () => clearTimeout(retryTimer);
-            }
+        // 비로그인 시 리다이렉트
+        if (!isAuthenticated) {
+            console.log('[MyPage] Not authenticated, redirecting to login...');
+            router.push("/login?next=/mypage");
+            setOrdersLoading(false);
+            return;
+        }
 
-            // 비로그인 시 리다이렉트
-            if (!isAuthenticated) {
-                console.log('[MyPage] Not authenticated, redirecting to login...');
-                router.push("/login?next=/mypage");
-                setLoading(false);
-                return;
-            }
-
-            if (user?.id) {
-                try {
-                    setLoading(true);
-                    const data = await greenlinkApi.getMyOrders(user.id);
-                    setOrders(data || []);
-                } catch (e) {
-                    console.error('[MyPage] Failed to fetch orders:', e);
-                } finally {
-                    setLoading(false);
-                }
-            } else {
-                // user 객체는 있는데 id가 없는 경우 (극히 드묾)
-                setLoading(false);
-            }
-        };
-
-        loadProfileData();
+        if (user?.id) {
+            setOrdersLoading(true);
+            greenlinkApi.getMyOrders(user.id)
+                .then(data => setOrders(data || []))
+                .catch(e => console.error('[MyPage] Failed to fetch orders:', e))
+                .finally(() => setOrdersLoading(false));
+        } else {
+            setOrdersLoading(false);
+        }
     }, [mounted, isInitialized, isAuthenticated, user?.id, router]);
 
     // Hydration 오류 방지
     if (!mounted) return null;
-
-    if (loading) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-4 pb-24 bg-gray-50">
-                <div className="w-10 h-10 border-4 border-green-200 border-t-green-600 rounded-full animate-spin" />
-                <p className="text-sm text-gray-400 font-medium">내 정보를 불러오는 중...</p>
-            </div>
-        );
-    }
 
     // [Safety] 인증은 성공했으나 프로필 데이터를 불러오지 못한 경우 가드
     if (!user) {
@@ -159,7 +132,12 @@ export default function MyPage() {
                         <h3 className="text-sm font-black text-gray-900">최근 주문</h3>
                     </div>
 
-                    {orders.length > 0 ? (
+                    {ordersLoading ? (
+                        <div className="flex items-center justify-center py-10 gap-3">
+                            <div className="w-5 h-5 border-2 border-green-200 border-t-green-600 rounded-full animate-spin" />
+                            <span className="text-sm text-gray-400 font-medium">주문 내역 불러오는 중...</span>
+                        </div>
+                    ) : orders.length > 0 ? (
                         <div className="space-y-4">
                             {orders.slice(0, 3).map((order: any) => {
                                 const statusInfo = {

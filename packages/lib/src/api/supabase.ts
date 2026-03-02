@@ -2,8 +2,12 @@ import { createBrowserClient } from '@supabase/ssr';
 import { type SupabaseClient } from '@supabase/supabase-js';
 
 // HMR(Fast Refresh) 시에도 인스턴스를 유지하기 위해 globalThis에 부착
+// CLIENT_CONFIG_VERSION: 클라이언트 설정 변경 시 이 값을 올려 구버전 캐시 강제 무효화
+const CLIENT_CONFIG_VERSION = 'v2'; // cookieOptions 제거 버전
+
 declare global {
     var __supabaseClient: SupabaseClient | undefined;
+    var __supabaseClientVersion: string | undefined;
 }
 
 /**
@@ -28,25 +32,25 @@ const getAuthOptions = () => {
 export const createClient = () => {
     // 브라우저 환경 싱글톤 처리
     if (typeof window !== 'undefined') {
+        // 버전 불일치 시 구버전 클라이언트 강제 폐기 (HMR 후 설정 변경 반영)
+        if (globalThis.__supabaseClientVersion !== CLIENT_CONFIG_VERSION) {
+            globalThis.__supabaseClient = undefined;
+            cachedBrowserClient = undefined;
+        }
+
         if (!cachedBrowserClient) {
             if (!globalThis.__supabaseClient) {
                 const authOptions = getAuthOptions();
-                const rememberMe = typeof window !== 'undefined' ? localStorage.getItem('gl_remember_me') === 'true' : false;
 
+                // cookieOptions 제거: auth.storage(localStorage/sessionStorage)와 SSR 쿠키 어댑터가
+                // 동일한 Navigator Lock을 경합 → 10초 타임아웃 발생. rememberMe 영속성은
+                // auth.storage 선택(localStorage vs sessionStorage)으로 단일 경로에서 제어
                 globalThis.__supabaseClient = createBrowserClient(
                     process.env.NEXT_PUBLIC_SUPABASE_URL!,
                     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-                    {
-                        auth: authOptions,
-                        cookieOptions: {
-                            // rememberMe가 꺼져있으면 undefined(세션 쿠키), 켜져있으면 1년(31536000초) 설정
-                            maxAge: rememberMe ? 60 * 60 * 24 * 365 : undefined,
-                            path: '/',
-                            sameSite: 'lax',
-                            secure: process.env.NODE_ENV === 'production',
-                        } as any
-                    }
+                    { auth: authOptions }
                 );
+                globalThis.__supabaseClientVersion = CLIENT_CONFIG_VERSION;
             }
             cachedBrowserClient = globalThis.__supabaseClient;
         }

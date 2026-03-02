@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@greenlink/ui";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface PaymentButtonProps {
     amount: number;
@@ -12,13 +12,24 @@ interface PaymentButtonProps {
 
 export function PaymentButton({ amount, onSuccess, disabled }: PaymentButtonProps) {
     const [isProcessing, setIsProcessing] = useState(false);
+    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const isMountedRef = useRef(true);
+
+    useEffect(() => {
+        return () => {
+            isMountedRef.current = false;
+            if (timerRef.current) clearTimeout(timerRef.current);
+        };
+    }, []);
 
     const handlePayment = async () => {
         setIsProcessing(true);
         // Mock payment delay
-        setTimeout(() => {
-            setIsProcessing(false);
-            onSuccess();
+        timerRef.current = setTimeout(() => {
+            if (isMountedRef.current) {
+                setIsProcessing(false);
+                onSuccess();
+            }
         }, 1500);
     };
 

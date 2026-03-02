@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { greenlinkApi, createClient, ZeroInventoryItem, useGroupBuyStore } from '@greenlink/lib';
+import { greenlinkApi, getSupabaseBrowserClient, ZeroInventoryItem, useGroupBuyStore } from '@greenlink/lib';
 
 export function useRealtimeDeal(id: string) {
     const [item, setItem] = useState<ZeroInventoryItem | null>(null);
@@ -31,7 +31,7 @@ export function useRealtimeDeal(id: string) {
         const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
         if (!isUuid) return;
 
-        const sbClient = createClient();
+        const sbClient = getSupabaseBrowserClient();
 
         const channel = sbClient
             .channel(`realtime:deal:${id}`)

@@ -16,7 +16,7 @@ export class OrderRepository {
             totalPrice: d.total_price,
             status: d.status as OrderStatus,
             deliveryDate: d.delivery_date,
-            orderedAt: d.ordered_at,
+            orderedAt: d.created_at,
             isEscrow: d.is_escrow,
             product: d.product ? {
                 item_nm: d.product.item_nm,
@@ -30,15 +30,22 @@ export class OrderRepository {
      * 사용자의 주문 내역 조회 (상품 정보 조인 포함)
      */
     async findByUserId(userId: string): Promise<Order[]> {
-        const { data, error } = await (this.supabase
-            .from('orders')
-            .select('*, product:zero_inventory_items(*)')
-            .eq('user_id', userId)
-            .order('ordered_at', { ascending: false }) as any)
-            .abortSignal(AbortSignal.timeout(4000));
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-        if (error) throw error;
-        return (data || []).map((d: any) => this.mapToOrder(d));
+        try {
+            const { data, error } = await this.supabase
+                .from('orders')
+                .select('id, product_id, user_id, quantity, total_price, status, created_at, is_escrow, buyer_name, buyer_phone, buyer_address, delivery_date, product:zero_inventory_items(item_nm, image_url, selling_price)')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false })
+                .abortSignal(controller.signal);
+
+            if (error) throw error;
+            return (data || []).map((d: any) => this.mapToOrder(d));
+        } finally {
+            clearTimeout(timeoutId);
+        }
     }
 
     /**

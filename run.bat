@@ -22,6 +22,10 @@ if not exist "node_modules" (
     call npm install
 )
 
+echo [PRE] Cleaning existing dev server processes...
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\kill-devserver.ps1
+echo [PRE] Process cleanup done.
+
 if not exist "logs" mkdir logs
 
 if "%choice%"=="1" goto run_all

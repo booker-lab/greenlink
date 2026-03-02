@@ -11,7 +11,9 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "dev:web": "turbo run dev --filter=@greenlink/web",
     "dev:admin": "turbo run dev --filter=@greenlink/admin",
-    "dev:driver": "turbo run dev --filter=@greenlink/driver"
+    "dev:driver": "turbo run dev --filter=@greenlink/driver",
+    "kill": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/kill-devserver.ps1",
+    "kill:dry": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/kill-devserver.ps1 -DryRun"
   },
   "devDependencies": {
     "turbo": "^2.8.10",
