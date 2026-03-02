@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { BottomNav } from "@/components/Layout/BottomNav";
 import { SupabaseProvider } from "@/components/Auth/SupabaseProvider";
@@ -67,7 +68,7 @@ export default async function RootLayout({
           1. initialProfile → Zero-lag Hydration (서버 데이터를 즉시 스토어에 주입)
           2. onAuthStateChange 리스너 → SSOT (이후 모든 인증 변경의 단일 허브)
         */}
-        <SupabaseProvider initialUser={initialProfile}>
+        <SupabaseProvider initialUser={initialProfile} sessionUser={user}>
           <div className="max-w-md mx-auto min-h-screen bg-gray-50 shadow-xl relative overflow-x-hidden border-x border-gray-100">
             <main className="pb-20 safe-area-pb">
               {children}

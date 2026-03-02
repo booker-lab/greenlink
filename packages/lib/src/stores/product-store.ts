@@ -1,3 +1,7 @@
+/**
+ * @deprecated Mock 데이터 기반 스토어. greenlinkApi.getZeroInventoryItems() 로 대체.
+ * stores/index.ts 공개 API에서 제거됨. 참고용으로 파일 보존.
+ */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Product } from '../types';

@@ -9,260 +9,346 @@ export default function MyPage() {
     const { user, isAuthenticated, isInitialized, loginWithProvider, logout } = useUserStore();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
+    const [mounted, setMounted] = useState(false);
     const [isLoading, setIsLoading] = useState<{ google: boolean, kakao: boolean }>({ google: false, kakao: false });
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const router = useRouter();
 
-    const handleLogin = async (provider: 'google' | 'kakao') => {
-        try {
-            setIsLoading(prev => ({ ...prev, [provider]: true }));
-            await loginWithProvider(provider);
-        } catch (error) {
-            console.error(`[Presentation] ${provider} Login Error:`, error);
-            alert(`${provider === 'kakao' ? '카카오' : '구글'} 로그인에 실패했습니다. 코드를 확인해 주세요.`);
-        } finally {
-            setIsLoading(prev => ({ ...prev, [provider]: false }));
-        }
-    };
+    // 1. Client-side 마운트 확인
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
-
+    // 2. [Safety Guard] 5초 이상 로딩 시 강제 해제
+    useEffect(() => {
+        if (!mounted) return;
+        const timer = setTimeout(() => {
+            if (loading) {
+                console.warn('[MyPage] Safety timeout triggered');
+                setLoading(false);
+            }
+        }, 5000);
+        return () => clearTimeout(timer);
+    }, [loading, mounted]);
 
     useEffect(() => {
-        if (!isInitialized) return;
+        if (!mounted) return;
 
-        if (isAuthenticated && user) {
-            setLoading(true);
-            greenlinkApi.getMyOrders().then(data => {
-                setOrders(data);
-            }).catch(e => {
-                console.error('[MyPage] Failed to fetch orders:', e);
-            }).finally(() => setLoading(false));
-        } else {
-            setLoading(false);
-        }
-    }, [isAuthenticated, isInitialized, user]);
+        const loadProfileData = async () => {
+            console.log('[MyPage] Sync Check:', { isInitialized, isAuthenticated, userId: user?.id });
 
-    if (!isInitialized) {
+            // 초기화 대기 (최대 1.5초)
+            if (!isInitialized) {
+                const retryTimer = setTimeout(() => {
+                    if (loading) setLoading(false);
+                }, 1500);
+                return () => clearTimeout(retryTimer);
+            }
+
+            // 비로그인 시 리다이렉트
+            if (!isAuthenticated) {
+                console.log('[MyPage] Not authenticated, redirecting to login...');
+                router.push("/login?next=/mypage");
+                setLoading(false);
+                return;
+            }
+
+            if (user?.id) {
+                try {
+                    setLoading(true);
+                    const data = await greenlinkApi.getMyOrders(user.id);
+                    setOrders(data || []);
+                } catch (e) {
+                    console.error('[MyPage] Failed to fetch orders:', e);
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                // user 객체는 있는데 id가 없는 경우 (극히 드묾)
+                setLoading(false);
+            }
+        };
+
+        loadProfileData();
+    }, [mounted, isInitialized, isAuthenticated, user?.id, router]);
+
+    // Hydration 오류 방지
+    if (!mounted) return null;
+
+    if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-4 pb-24 bg-gray-50">
                 <div className="w-10 h-10 border-4 border-green-200 border-t-green-600 rounded-full animate-spin" />
+                <p className="text-sm text-gray-400 font-medium">내 정보를 불러오는 중...</p>
             </div>
         );
     }
 
-    if (loading && isAuthenticated) {
+    // [Safety] 인증은 성공했으나 프로필 데이터를 불러오지 못한 경우 가드
+    if (!user) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-4 pb-24 bg-gray-50">
-                <div className="w-10 h-10 border-4 border-green-200 border-t-green-600 rounded-full animate-spin" />
-            </div>
-        );
-    }
-
-    if (!isAuthenticated || !user) {
-        // Redundant fallback, as middleware.ts handles route protection.
-        // During logout, this prevents the confusing behavior of flashing the inline login UI
-        // before the redirect to /login takes place.
-        return (
-            <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-4 pb-24 bg-gray-50">
-                <div className="w-10 h-10 border-4 border-green-200 border-t-green-600 rounded-full animate-spin" />
+                <p className="text-gray-500">로그인이 필요하거나 정보를 불러올 수 없습니다.</p>
+                <button
+                    onClick={() => router.push('/login')}
+                    className="mt-2 px-6 py-2 bg-green-600 text-white rounded-xl font-bold"
+                >
+                    로그인 페이지로 이동
+                </button>
             </div>
         );
     }
 
     return (
         <div className="pb-28 bg-gray-50 min-h-screen font-sans">
-            {/* Top Green Area */}
-            <div className="bg-[#1ebe5d] pt-8 pb-6 px-5 rounded-b-3xl shadow-sm text-white">
-                <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-[#1ebe5d] text-2xl font-bold shadow-sm">
-                        {user.nickname.charAt(0)}
-                    </div>
-                    <div className="flex-1">
-                        <div className="flex items-center gap-2 cursor-pointer">
-                            <h2 className="text-xl font-extrabold">{user.nickname || "그린러버"}</h2>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="m9 18 6-6-6-6" />
-                            </svg>
+            {/* User Profile Header (Dashboard) */}
+            <div className="bg-white px-5 pt-8 pb-6 border-b border-gray-100 shadow-sm">
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                        <div className="relative">
+                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-[#1ebe5d] text-2xl font-bold border-2 border-white shadow-sm overflow-hidden">
+                                {user.nickname.charAt(0)}
+                            </div>
+                            <div className="absolute -bottom-1 -right-1 bg-white p-1 rounded-full shadow-md border border-gray-50">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1ebe5d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                                </svg>
+                            </div>
                         </div>
-                        <div className="flex flex-col gap-0.5 mt-1">
-                            <span className="text-[10px] opacity-70 font-mono tracking-tight">ID: {user.id.substring(0, 13)}... (로그인됨)</span>
-                            <span className="inline-block w-fit bg-white/20 px-2 py-0.5 rounded-full text-[11px] font-bold">
-                                그린 등급 <span className="ml-1">{user.pinkTemperature?.emoji || "♥"} {user.pinkTemperature?.level || "첫눈"}</span>
-                            </span>
+                        <div>
+                            <div className="flex items-center gap-1.5 leading-none">
+                                <h2 className="text-lg font-black text-gray-900">{user.nickname || "그린러버"}</h2>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="m9 18 6-6-6-6" />
+                                </svg>
+                            </div>
+                            <p className="text-[11px] text-gray-400 font-bold mt-1.5">이번 달 등급 <span className="text-green-600 ml-0.5">그린 {user.pinkTemperature?.level || "새내기"}</span></p>
                         </div>
                     </div>
                 </div>
 
-                {/* Pink Temperature Bar */}
-                <div className="mb-4">
-                    <div className="flex justify-between items-end mb-1">
-                        <span className="text-xs font-bold opacity-90">내 핑크 온도</span>
-                        <span className="text-sm font-extrabold flex items-center gap-1">
-                            {user.pinkTemperature.emoji} {user.pinkTemperature.value}℃
-                        </span>
-                    </div>
-                    <div className="w-full bg-black/10 rounded-full h-1.5 overflow-hidden">
-                        <div className="h-1.5 bg-pink-400 rounded-full" style={{ width: `${Math.min((user.pinkTemperature.value / 100) * 100, 100)}%` }} />
-                    </div>
-                    <p className="text-[10px] opacity-70 mt-1.5 font-medium">첫눈 단계 - 그린링크를 시작한 새 회원</p>
+                {/* Level Up Banner */}
+                <div className="bg-green-50/70 border border-green-100 rounded-xl py-2.5 px-4 mb-6 flex items-center justify-between cursor-pointer">
+                    <span className="text-[12px] font-bold text-green-700">30,000원 추가 구매하면 다음 달 주민 등급 달성!</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
                 </div>
 
-                {/* Points and Coupons */}
-                <div className="flex bg-white/10 rounded-xl py-3 divide-x divide-white/20 text-center">
+                {/* Main Dashboard Stats */}
+                <div className="flex justify-around items-center divide-x divide-gray-100 text-center">
                     <div className="flex-1 cursor-pointer">
-                        <div className="text-lg font-extrabold">{user.points.toLocaleString()}원</div>
-                        <div className="text-xs font-medium opacity-80 mt-0.5">적립금</div>
+                        <div className="text-xs font-bold text-gray-400 mb-1">적립금</div>
+                        <div className="text-[15px] font-black text-gray-900">{(user.points || 0).toLocaleString()}</div>
                     </div>
                     <div className="flex-1 cursor-pointer">
-                        <div className="text-lg font-extrabold">5</div>
-                        <div className="text-xs font-medium opacity-80 mt-0.5">쿠폰</div>
+                        <div className="text-xs font-bold text-gray-400 mb-1">쿠폰</div>
+                        <div className="text-[15px] font-black text-gray-900">3</div>
+                    </div>
+                    <div className="flex-1 cursor-pointer">
+                        <div className="text-xs font-bold text-gray-400 mb-1">작성 가능 후기</div>
+                        <div className="text-[15px] font-black text-gray-900">0</div>
                     </div>
                 </div>
             </div>
 
-            <main className="px-4 mt-6 space-y-6">
-
-                {/* Recent Items */}
+            <main className="px-4 py-6 space-y-6">
+                {/* My Recent Orders */}
                 <section>
                     <div className="flex justify-between items-center mb-3">
-                        <h3 className="text-sm font-extrabold text-gray-900">최근 본 상품</h3>
-                        <span className="text-xs text-green-600 font-bold cursor-pointer">전체보기 →</span>
+                        <h3 className="text-sm font-black text-gray-900">최근 주문</h3>
                     </div>
-                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                        {['🌸', '🌿', '🌱', '🎁'].map((emoji, i) => (
-                            <div key={i} className="flex-shrink-0 w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-3xl shadow-sm border border-gray-100 cursor-pointer">
-                                {emoji}
+
+                    {orders.length > 0 ? (
+                        <div className="space-y-4">
+                            {orders.slice(0, 3).map((order: any) => {
+                                const statusInfo = {
+                                    'ESCROW_DEPOSIT': { label: '결제완료', step: 0 },
+                                    'PREPARING': { label: '배송준비', step: 1 },
+                                    'DISPATCHED': { label: '배송시작', step: 2 },
+                                    'DELIVERING': { label: '배송중', step: 3 },
+                                    'COMPLETED': { label: '배송완료', step: 4 },
+                                    'CANCELLED': { label: '취소완료', step: -1 }
+                                }[order.status as string] || { label: '확인중', step: 0 };
+
+                                return (
+                                    <div key={order.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div className="flex gap-3">
+                                                <div className="w-16 h-16 bg-gray-50 rounded-xl flex items-center justify-center text-3xl shadow-inner overflow-hidden border border-gray-50">
+                                                    {order.product?.image_url ? (
+                                                        <Image src={order.product.image_url} alt="product" width={64} height={64} className="object-cover" />
+                                                    ) : "🌱"}
+                                                </div>
+                                                <div>
+                                                    <p className={`text-[12px] font-black mb-0.5 ${order.status === 'CANCELLED' ? 'text-gray-400' : 'text-green-600'}`}>
+                                                        {statusInfo.label}
+                                                    </p>
+                                                    <p className="text-[14px] font-bold text-gray-900 line-clamp-1">
+                                                        {order.product?.item_nm || "공동구매 상품"}
+                                                    </p>
+                                                    <p className="text-[12px] text-gray-400 mt-1">{(order.totalPrice || 0).toLocaleString()}원 | {order.quantity}개</p>
+                                                </div>
+                                            </div>
+                                            {order.status !== 'CANCELLED' && (
+                                                <button
+                                                    onClick={() => router.push(`/mypage/order/cancel/${order.id}`)}
+                                                    className="px-3 py-1.5 border border-gray-200 text-gray-500 text-[11px] font-bold rounded-lg hover:bg-gray-50 active:scale-95 transition-all"
+                                                >
+                                                    주문 취소
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {/* Status Progress Bar */}
+                                        {order.status !== 'CANCELLED' ? (
+                                            <div className="mt-6">
+                                                <div className="flex justify-between items-center mb-1">
+                                                    {['결제완료', '준비중', '배송시작', '배송중', '배송완료'].map((label, idx) => (
+                                                        <span key={label} className={`text-[9px] font-black ${statusInfo.step >= idx ? 'text-green-600' : 'text-gray-300'}`}>
+                                                            {label}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                                <div className="relative w-full h-1 bg-gray-100 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="absolute top-0 left-0 h-full bg-green-500 transition-all duration-500"
+                                                        style={{ width: `${(statusInfo.step / 4) * 100}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="bg-gray-50 rounded-xl p-3 flex items-center justify-center border border-dashed border-gray-200">
+                                                <span className="text-[11px] font-bold text-gray-400 tracking-tight">요청하신 주문 취소가 완료되었습니다.</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+
+                            <button
+                                onClick={() => router.push('/mypage/order')}
+                                className="w-full py-3.5 bg-white border border-gray-200 text-[13px] font-black text-gray-900 rounded-2xl shadow-sm hover:gray-50 active:scale-95 transition-all"
+                            >
+                                주문 내역 모두 보기
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="bg-white border border-gray-100 border-dashed rounded-2xl py-10 text-center">
+                            <p className="text-[13px] text-gray-400 font-bold tracking-tight">아직 참여 중인 공동구매가 없습니다.</p>
+                            <button
+                                onClick={() => router.push('/category')}
+                                className="mt-4 text-[12px] font-black text-green-600 border border-green-200 px-6 py-2 rounded-full hover:bg-green-50 transition-colors"
+                            >
+                                첫 공구 도전하기
+                            </button>
+                        </div>
+                    )}
+                </section>
+
+                {/* Detailed Menus */}
+                <div className="space-y-4">
+                    {/* Order Management */}
+                    <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden divide-y divide-gray-50">
+                        <div className="p-4 bg-gray-50/30">
+                            <h3 className="text-[12px] font-black text-gray-400">주문 관리</h3>
+                        </div>
+                        <div onClick={() => router.push('/mypage/order')} className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                            <div className="flex items-center gap-3">
+                                <span className="text-lg">📦</span>
+                                <span className="text-[14px] font-bold text-gray-700">나의 주문 내역</span>
                             </div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* Menu List */}
-                <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden divide-y divide-gray-50">
-                    <div className="p-4">
-                        <h3 className="text-xs font-extrabold text-gray-900 mb-3 ml-1">주문 내역</h3>
-                        <ul className="space-y-1">
-                            {/* In a real app we'd map orders here instead of just the menu item */}
-                            <li onClick={() => router.push('/category')} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-xl cursor-pointer">
-                                <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                    <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-                                    나의 주문 내역 <span className="bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded-md ml-1">{orders.length}</span>
-                                </span>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
-                            </li>
-                            <li className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-xl cursor-pointer">
-                                <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                    <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                    배송지 관리
-                                </span>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div className="p-4">
-                        <h3 className="text-xs font-extrabold text-gray-900 mb-3 ml-1">고객 지원</h3>
-                        <ul className="space-y-1">
-                            <li className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-xl cursor-pointer">
-                                <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                    <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                                    고객센터 / 도움말
-                                </span>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
-                            </li>
-                            <li className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-xl cursor-pointer">
-                                <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                    <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-                                    공지사항
-                                </span>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div className="p-4">
-                        <h3 className="text-xs font-extrabold text-gray-900 mb-3 ml-1">나의 소식</h3>
-                        <ul className="space-y-1">
-                            <li className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-xl cursor-pointer">
-                                <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                    <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
-                                    결제 수단 관리
-                                </span>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
-                            </li>
-                            <li className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-xl cursor-pointer">
-                                <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                    <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                    설정
-                                </span>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
-                            </li>
-                        </ul>
-                    </div>
-                </section>
-
-                {/* Banner B2B */}
-                <div className="bg-[#e9f6ea] border border-[#d1e9d3] rounded-2xl p-4 flex flex-col gap-3">
-                    <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center shadow-sm">
-                            <span className="text-white text-lg">🏪</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
                         </div>
-                        <div>
-                            <h4 className="text-[13px] font-extrabold text-green-900 leading-tight">내가 찾던 손님<br />모두 그린링크에 있어요</h4>
-                            <p className="text-[10px] text-green-700 mt-1 font-medium">내 동네 근처 이웃 152,847명</p>
+                        <div className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                            <div className="flex items-center gap-3">
+                                <span className="text-lg">📍</span>
+                                <span className="text-[14px] font-bold text-gray-700">배송지 관리</span>
+                            </div>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
                         </div>
-                    </div>
-                    <button className="w-full py-2.5 bg-[#1ebe5d] text-white text-xs font-bold rounded-xl shadow-sm hover:bg-green-600 transition-colors">
-                        그린링크 비즈 시작하기 &rsaquo;
-                    </button>
+                    </section>
+
+                    {/* Support & Community */}
+                    <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden divide-y divide-gray-50">
+                        <div className="p-4 bg-gray-50/30">
+                            <h3 className="text-[12px] font-black text-gray-400">고객 지원</h3>
+                        </div>
+                        <div className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center gap-3">
+                                <span className="text-lg">🎧</span>
+                                <span className="text-[14px] font-bold text-gray-700">고객센터 / 도움말</span>
+                            </div>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+                        </div>
+                        <div className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center gap-3">
+                                <span className="text-lg">📢</span>
+                                <span className="text-[14px] font-bold text-gray-700">공지사항</span>
+                            </div>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+                        </div>
+                    </section>
+
+                    {/* My Settings */}
+                    <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden divide-y divide-gray-50">
+                        <div className="p-4 bg-gray-50/30">
+                            <h3 className="text-[12px] font-black text-gray-400">나의 소식</h3>
+                        </div>
+                        <div className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center gap-3">
+                                <span className="text-lg">💳</span>
+                                <span className="text-[14px] font-bold text-gray-700">결제 수단 관리</span>
+                            </div>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+                        </div>
+                        <div className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center gap-3">
+                                <span className="text-lg">⚙️</span>
+                                <span className="text-[14px] font-bold text-gray-700">설정</span>
+                            </div>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+                        </div>
+                    </section>
+
+                    {/* Business Section */}
+                    <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="p-4 bg-gray-50/30 flex justify-between items-center">
+                            <h3 className="text-[12px] font-black text-gray-400">비즈니스</h3>
+                            <span className="bg-green-100 text-green-600 text-[9px] font-black px-1.5 py-0.5 rounded-sm">그린비즈</span>
+                        </div>
+                        <div className="p-4 flex items-center justify-between cursor-pointer hover:bg-green-50/30 transition-colors">
+                            <div className="flex items-center gap-3">
+                                <span className="text-lg">🏪</span>
+                                <span className="text-[14px] font-bold text-gray-700">비즈프로필 관리</span>
+                                <span className="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded-full font-black scale-90">NEW</span>
+                            </div>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+                        </div>
+                    </section>
                 </div>
 
-                {/* Business Section */}
-                <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-                    <div className="p-4">
-                        <h3 className="text-xs font-extrabold text-gray-900 mb-3 ml-1">비즈니스</h3>
-                        <ul className="space-y-1">
-                            <li className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-xl cursor-pointer">
-                                <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                    <span className="text-green-600 text-base leading-none">🏪</span>
-                                    비즈프로필 관리
-                                </span>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[8px] font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded-sm">NEW</span>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </section>
-
-                <div className="mt-8 mb-12 px-1">
+                {/* Account Actions */}
+                <div className="pt-4 flex items-center justify-center gap-4 text-gray-400 text-[11px] font-bold">
                     <button
                         onClick={async () => {
-                            try {
-                                setIsLoggingOut(true);
-                                console.log('[MyPage] Logout process started');
-                                await logout();
-                                // router.push('/login') 대신 window.location.href가 user-store 내에서 동작
-                            } catch (e) {
-                                console.error('Logout failed:', e);
-                                setIsLoggingOut(false);
-                            }
+                            if (isLoggingOut) return;
+                            setIsLoggingOut(true);
+                            await logout();
                         }}
-                        disabled={isLoggingOut}
-                        className="w-full py-4 bg-red-50 text-red-600 border border-red-100 text-[14px] font-extrabold rounded-2xl flex justify-center items-center hover:bg-red-100 active:scale-95 transition-all shadow-sm disabled:opacity-50"
                     >
-                        {isLoggingOut ? (
-                            <span className="w-5 h-5 border-2 border-red-600/30 border-t-red-600 rounded-full animate-spin" />
-                        ) : (
-                            '로그아웃'
-                        )}
+                        로그아웃
                     </button>
-                    <p className="text-center text-[10px] text-gray-400 mt-4">
-                        계정 전환 또는 로그인이 필요하시면 로그아웃을 진행해 주세요.
-                    </p>
+                    <span className="w-px h-2 bg-gray-200" />
+                    <button>회원탈퇴</button>
                 </div>
 
+                <div className="pt-2 pb-10 text-center">
+                    <p className="text-[10px] text-gray-300 font-mono tracking-tighter">
+                        USER_ID: {user.id} <br />
+                        BUILD_REV: GREENLINK_2026.03.02
+                    </p>
+                </div>
             </main>
         </div>
     );

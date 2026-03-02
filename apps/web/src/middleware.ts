@@ -52,9 +52,11 @@ export async function middleware(request: NextRequest) {
     }
 
     // 4. 경로 별 보호(Protected) 로직
-    const isProtectedRoute = request.nextUrl.pathname.startsWith('/mypage') ||
+    const isProtectedRoute =
+        request.nextUrl.pathname.startsWith('/mypage') ||
         request.nextUrl.pathname.startsWith('/order') ||
-        request.nextUrl.pathname.startsWith('/cart')
+        request.nextUrl.pathname.startsWith('/cart') ||
+        request.nextUrl.pathname.startsWith('/payment')
 
     const isAuthRoute = request.nextUrl.pathname.startsWith('/login')
 
@@ -76,7 +78,10 @@ export async function middleware(request: NextRequest) {
 
     if (isAuthRoute && user) {
         const redirectUrl = request.nextUrl.clone()
-        redirectUrl.pathname = '/'
+        const nextPath = request.nextUrl.searchParams.get('next') || '/'
+        redirectUrl.pathname = nextPath
+        redirectUrl.search = '' // next 파라미터는 제거
+
         const redirectResponse = NextResponse.redirect(redirectUrl)
 
         supabaseResponse.cookies.getAll().forEach(cookie => {

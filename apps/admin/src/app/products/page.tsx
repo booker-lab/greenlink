@@ -1,6 +1,6 @@
 "use client";
 
-import { useProductStore } from "@greenlink/lib";
+import { MOCK_PRODUCTS } from "@greenlink/lib";
 import {
     Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
     Button, Badge,
@@ -11,7 +11,8 @@ import { useState, useEffect } from "react";
 import { ProductForm } from "@/components/Product/ProductForm";
 
 export default function ProductsPage() {
-    const { products, removeProduct } = useProductStore();
+    const [products, setProducts] = useState(MOCK_PRODUCTS);
+    const removeProduct = (id: string) => setProducts(prev => prev.filter(p => p.id !== id));
     const [mounted, setMounted] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 

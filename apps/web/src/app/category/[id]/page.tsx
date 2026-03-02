@@ -5,6 +5,7 @@ import { use, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRealtimeDeal } from "@/hooks/useRealtimeDeal";
+import { useUserStore } from "@greenlink/lib";
 
 const AI_MARKETING: Record<string, string> = {
     "orc-1": "화사한 블루 계열의 호접란으로, 고급스러운 분위기를 자아냅니다. 인테리어 소품이나 선물용으로 인기가 높으며, 최근 경매에서 거래량 1위를 기록한 스테디셀러입니다. 생명력이 강해 초보자도 쉽게 키울 수 있어요.",
@@ -27,6 +28,8 @@ export default function KamisItemDetailPage({ params }: { params: Promise<{ id: 
     const { id } = use(params);
     const { item, loading } = useRealtimeDeal(id);
     const [qty, setQty] = useState(1);
+    const [isOptionOpen, setIsOptionOpen] = useState(false);
+    const { isAuthenticated, user, addToCart } = useUserStore();
 
     if (loading) {
         return <div className="flex justify-center items-center min-h-screen">
@@ -143,20 +146,99 @@ export default function KamisItemDetailPage({ params }: { params: Promise<{ id: 
             </div>
 
             {/* Fixed Bottom CTA */}
-            <div className="fixed bottom-[72px] pb-[env(safe-area-inset-bottom)] left-1/2 -translate-x-1/2 w-full max-w-md z-50 bg-white border-t border-gray-100 p-4">
+            <div className="fixed bottom-[72px] pb-[env(safe-area-inset-bottom)] left-1/2 -translate-x-1/2 w-full max-w-md z-40 bg-white border-t border-gray-100 p-4">
                 {isCompleted ? (
                     <button disabled className="w-full py-4 bg-gray-200 text-gray-400 font-extrabold text-[16px] rounded-2xl">
                         모집 완료 (참여 불가)
                     </button>
                 ) : (
                     <button
-                        onClick={() => router.push(`/payment?itemId=${item.id}&qty=${qty}`)}
+                        onClick={() => setIsOptionOpen(true)}
                         className="w-full py-4 bg-green-600 text-white font-extrabold text-[16px] rounded-2xl shadow-lg shadow-green-200 hover:bg-green-700 active:scale-95 transition-all"
                     >
-                        공구 참여 (결제예치) — {(item.sellingPrice * qty).toLocaleString()}원
+                        구매하기
                     </button>
                 )}
             </div>
+
+            {/* Option Selection Bottom Sheet (Paldo-gam Style) */}
+            {isOptionOpen && (
+                <>
+                    {/* Backdrop */}
+                    <div
+                        className="fixed inset-0 bg-black/60 z-[60] backdrop-blur-[2px] transition-opacity animate-in fade-in duration-300"
+                        onClick={() => setIsOptionOpen(false)}
+                    />
+                    {/* Sheet */}
+                    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white rounded-t-[32px] z-[70] p-6 shadow-2xl animate-in slide-in-from-bottom duration-300">
+                        {/* Drag Handle */}
+                        <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6" />
+
+                        <div className="mb-6">
+                            <h3 className="text-[17px] font-bold text-gray-900 mb-1">{item.itemNm}</h3>
+                            <p className="text-sm text-gray-500">수량을 선택해 주세요</p>
+                        </div>
+
+                        {/* Quantity Selector Layer */}
+                        <div className="bg-gray-50 rounded-2xl p-4 flex items-center justify-between mb-8 border border-gray-100">
+                            <span className="text-sm font-extrabold text-gray-700">기본 옵션 (수량)</span>
+                            <div className="flex items-center gap-4">
+                                <button
+                                    onClick={() => setQty(q => Math.max(1, q - 1))}
+                                    className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-600 font-bold hover:bg-gray-100 transition-colors"
+                                >
+                                    -
+                                </button>
+                                <span className="font-black text-[16px] text-gray-900 w-4 text-center">{qty}</span>
+                                <button
+                                    onClick={() => setQty(q => q + 1)}
+                                    className="w-9 h-9 flex items-center justify-center rounded-xl bg-green-600 border border-green-600 text-white font-bold hover:bg-green-700 transition-colors"
+                                >
+                                    +
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Total Price Section */}
+                        <div className="flex items-center justify-between mb-8 px-1">
+                            <span className="text-[14px] font-bold text-gray-500">총 합계</span>
+                            <span className="text-2xl font-black text-green-700">
+                                {(item.sellingPrice * qty).toLocaleString()}<span className="text-[16px] ml-0.5">원</span>
+                            </span>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex gap-3">
+                            <button
+                                onClick={async () => {
+                                    const res = await addToCart(item.id, qty);
+                                    if (res) {
+                                        if (confirm("장바구니에 담겼습니다. 장바구니로 이동할까요?")) {
+                                            router.push('/cart');
+                                        }
+                                        setIsOptionOpen(false);
+                                    }
+                                }}
+                                className="flex-1 py-4 border-2 border-green-600 text-green-600 font-extrabold text-[16px] rounded-2xl hover:bg-green-50 transition-all active:scale-95"
+                            >
+                                장바구니
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (!isAuthenticated) {
+                                        router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+                                        return;
+                                    }
+                                    router.push(`/payment?itemId=${item.id}&qty=${qty}`);
+                                }}
+                                className="flex-[2] py-4 bg-green-600 text-white font-extrabold text-[16px] rounded-2xl shadow-lg shadow-green-200 hover:bg-green-700 transition-all active:scale-95"
+                            >
+                                바로 구매하기
+                            </button>
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
     );
 }

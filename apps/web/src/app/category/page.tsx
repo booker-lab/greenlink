@@ -1,6 +1,7 @@
 "use client";
 
-import { greenlinkApi, ZeroInventoryItem } from "@greenlink/lib";
+import { useRouter } from "next/navigation";
+import { useUserStore, greenlinkApi, ZeroInventoryItem } from "@greenlink/lib";
 import { ZeroInventoryCard } from "@/components/GroupBuy/ZeroInventoryCard";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -29,6 +30,8 @@ const CATEGORY_INFO = {
 };
 
 export default function CategoryPage() {
+    const router = useRouter();
+    const { isAuthenticated, isInitialized } = useUserStore();
     const [selectedCategory, setSelectedCategory] = useState<CategoryGubun>('ORC');
     const [items, setItems] = useState<ZeroInventoryItem[]>([]);
     const [loading, setLoading] = useState(true);
@@ -150,6 +153,21 @@ export default function CategoryPage() {
 
             {/* Content List */}
             <main className="p-4">
+                {/* [Login Guide] 비로그인 유저를 위한 로그인 유도 섹션 */}
+                {!isAuthenticated && isInitialized && (
+                    <div className="mb-6 bg-white border-2 border-green-500 rounded-2xl p-4 shadow-md animate-pulse active:scale-95 transition-all cursor-pointer"
+                        onClick={() => router.push('/login?next=/category')}>
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-xl">🔑</div>
+                            <div className="flex-1">
+                                <h4 className="text-sm font-black text-gray-900">로그인이 필요합니다!</h4>
+                                <p className="text-[11px] text-gray-500 font-medium">참여 인원에 합류하고 할인 혜택을 받으려면 먼저 로그인해 주세요.</p>
+                            </div>
+                            <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg">로그인 &rsaquo;</span>
+                        </div>
+                    </div>
+                )}
+
                 <div className="flex justify-between items-center mb-4">
                     <span className="text-sm font-bold text-gray-800">
                         모집 중인 상품 <span className="text-green-600">{filteredItems.length}</span>

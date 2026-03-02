@@ -1,6 +1,7 @@
 // 1. Core API & Supabase Client
 export * from './api/supabase';
 export { greenlinkApi } from './api';
+export * from './domain';
 export * from './api/client';
 
 // 2. Domain Types & Models (SSOT)

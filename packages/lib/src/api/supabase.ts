@@ -12,11 +12,17 @@ declare global {
  */
 let cachedBrowserClient: SupabaseClient | undefined;
 
-const authOptions = {
-    // 락 제거: 싱글톤 전환으로 더 이상 클라이언트 재생성 충돌이 없으므로, 기본 네이티브 navigator.locks를 사용하여 토큰 갱신 시 Race Condition 방지
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
+const getAuthOptions = () => {
+    const isBrowser = typeof window !== 'undefined';
+    // 기본적으로 '로그인 상태 유지'가 체크된 경우에만 localStorage 사용
+    const rememberMe = isBrowser ? localStorage.getItem('gl_remember_me') === 'true' : false;
+
+    return {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        storage: isBrowser ? (rememberMe ? localStorage : sessionStorage) : undefined,
+    };
 };
 
 export const createClient = () => {
@@ -24,11 +30,21 @@ export const createClient = () => {
     if (typeof window !== 'undefined') {
         if (!cachedBrowserClient) {
             if (!globalThis.__supabaseClient) {
+                const authOptions = getAuthOptions();
+                const rememberMe = typeof window !== 'undefined' ? localStorage.getItem('gl_remember_me') === 'true' : false;
+
                 globalThis.__supabaseClient = createBrowserClient(
                     process.env.NEXT_PUBLIC_SUPABASE_URL!,
                     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
                     {
-                        auth: authOptions
+                        auth: authOptions,
+                        cookieOptions: {
+                            // rememberMe가 꺼져있으면 undefined(세션 쿠키), 켜져있으면 1년(31536000초) 설정
+                            maxAge: rememberMe ? 60 * 60 * 24 * 365 : undefined,
+                            path: '/',
+                            sameSite: 'lax',
+                            secure: process.env.NODE_ENV === 'production',
+                        } as any
                     }
                 );
             }
@@ -41,8 +57,15 @@ export const createClient = () => {
     return createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        { auth: authOptions }
+        { auth: getAuthOptions() }
     );
+};
+
+export const resetSupabaseBrowserClient = () => {
+    cachedBrowserClient = undefined;
+    if (typeof window !== 'undefined') {
+        globalThis.__supabaseClient = undefined;
+    }
 };
 
 export const getSupabaseBrowserClient = createClient;

@@ -3,9 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@greenlink/lib/stores";
-import { Input } from "@greenlink/ui/components/ui/input";
-import { Button } from "@greenlink/ui/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@greenlink/ui/components/ui/card";
+import { Input, Button, Card, CardContent, CardHeader, CardTitle } from "@greenlink/ui";
 
 export default function LoginPage() {
     const router = useRouter();

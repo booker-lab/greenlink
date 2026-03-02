@@ -20,6 +20,19 @@ export function BottomNav() {
         }
     }, [isAuthenticated, fetchProfileAndCart]);
 
+    // [Hydration Guard] pathname이 아직 결정되지 않았거나 서버 사이드 초기 렌더링 시에는 
+    // Mismatch 방지를 위해 마운트 전까지는 상단 가드 조건만 체크하거나 null을 반환합니다.
+    if (!pathname) return null;
+
+    // 결제/주문/로그인 페이지에서는 BottomNav를 숨김 (레이아웃 겹침 방지 및 포커스 유도)
+    const hiddenRoutes = ['/payment', '/order', '/login'];
+    if (hiddenRoutes.some(route => pathname.startsWith(route))) {
+        return null;
+    }
+
+    // 마운트 전에는 서버와 동일한 구조를 유지하기 위해 최소한의 렌더만 수행하거나 null을 반환
+    if (!isMounted) return null;
+
     const navItems = [
         {
             href: "/",

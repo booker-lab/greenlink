@@ -1,90 +1,116 @@
-# 🌿 GreenLink v2
+# GreenLink v2
 
-**하이퍼로컬 화훼·농수산 직거래 플랫폼** — Kia PV5 신선배송 차량 기반 직배송 시스템 포함
-
----
-
-## 🚀 Extreme Performance (TTFB 20ms)
-본 프로젝트는 초기 로딩 속도 최적화를 통해 최상의 사용자 경험을 제공합니다.
-- **Server Components**: 메인 페이지를 Server Component로 설계하여 클라이언트 사이드 부하 최소화.
-- **SSR Optimization**: 데이터 직접 주입 방식을 통해 **TTFB(초기 응답 속도)를 4.8s에서 20ms로 단축**.
-- **Lightweight UI**: 외부 라이브러리(`lucide-react`, `date-fns` 등)를 제거하고 Native API와 Unicode Emoji를 사용하여 번들 사이즈 최소화.
+**하이퍼로컬 화훼·농수산 직거래 플랫폼** — 산지 직배송 및 제로 인벤토리 공동구매 시스템
 
 ---
 
 ## 1. 프로젝트 개요
-GreenLink는 중간 유통 과정을 생략하고 농장과 소비자를 직접 연결하는 하이퍼로컬 플랫폼입니다. 
-Kia PV5 전기차를 활용한 최적 온도 유지(18°C) 배송과 경매 시세 기반 공동구매 시스템을 통해 가장 신선하고 합리적인 직거래 경험을 제공합니다.
 
-### 핵심 가치
-- **직거래**: 당근마켓 비즈프로필 스타일의 농장 직거래
-- **신선 배송**: D+2~D+10 예약 배송 및 신선도 유지
-- **공동구매**: 경매장 시세 연동을 통한 소비자 공동구매 모집 및 사입
-- **신뢰 지표**: 그린 온도(판매자) 및 핑크 온도(구매자) 시스템
+GreenLink는 중간 유통 과정을 생략하고 농장과 소비자를 **동네 거점(꽃집/무인사물함)**을 통해 직접 연결하는 하이퍼로컬 플랫폼입니다.
+
+- **유통 혁신**: 경매장 중심의 복합 유통 단계를 생략, 산지와 거점을 직배송망으로 연결
+- **제로 인벤토리 공동구매**: 선결제 후 사입 방식으로 재고 리스크 제거
+- **신뢰 지표**: 그린 온도(판매자) / 핑크 온도(구매자) 시스템
+- **AI 비즈니스 효율화**: V2S(Voice to Sales) 상세페이지 자동 생성, AI 품질 판독
 
 ---
 
-## 2. 모노레포 아키텍처
-본 프로젝트는 **Turborepo**와 **npm**을 기반으로 한 모노레포 구조로 설계되었습니다.
+## 2. 모노레포 구조
 
-```bash
+```
 greenlink-monorepo/
 ├── apps/
-│   ├── web/       # 소비자용 PWA (Next.js, Server Components Optimized)
-│   ├── admin/     # 농가/판매자용 대시보드 (Next.js)
-│   └── driver/    # 배송기사용 앱 (Next.js, Dark Theme)
+│   ├── web/         # 소비자용 PWA (Next.js 15, App Router)
+│   ├── admin/       # 농가/판매자용 관리 대시보드
+│   └── driver/      # 배송기사용 앱 (Dark Theme)
 ├── packages/
-│   ├── ui/        # 고성능 공용 디자인 시스템 (Radix UI + Native CSS)
-│   └── lib/       # 전역 상태(Zustand), API 클라이언트, 공용 데이터(Mock)
+│   ├── ui/          # 공용 디자인 시스템 (Ark UI + Tailwind v4)
+│   └── lib/         # API 클라이언트, Zustand Store, 공용 타입
+├── supabase/
+│   └── migrations/  # DB 스키마 마이그레이션 SQL
+├── scripts/         # 유틸리티 스크립트 (Python 모니터, 진단 도구)
+├── tests/
+│   └── manual/      # 수동 검증용 API 테스트 스크립트
+├── docs/            # 프로젝트 문서 (SSOT, 트러블슈팅, 워크플로우)
+└── logs/            # 런타임 및 빌드 로그
 ```
 
 ---
 
 ## 3. 기술 스택
-- **Framework**: Next.js 15 (App Router, Server Components)
-- **Framework**: React 19 (RC)
-- **Monorepo**: Turborepo, npm
-- **Styling**: Tailwind CSS (Native focus)
-- **State Management**: Zustand (Persistence mode)
-- **Performance**: High TTFB optimization (20ms target)
+
+| 영역 | 기술 |
+| :--- | :--- |
+| **Framework** | Next.js 15 (App Router, Turbopack) |
+| **UI Library** | React 19 |
+| **Headless UI** | Ark UI (`@ark-ui/react`) |
+| **Styling** | Tailwind CSS v4 (CSS-first, OKLCH 컬러) |
+| **State** | Zustand (UI 캐싱 한정) |
+| **Backend/DB** | Supabase (PostgreSQL + RLS + `@supabase/ssr`) |
+| **Monorepo** | Turborepo + npm workspaces |
+| **Python 인프라** | Python 3.14 + uv (`scripts/error_monitor.py`) |
+| **Build Tools** | VS Build Tools 2022 (MSVC, 네이티브 모듈) |
 
 ---
 
-## 4. 실행 방법 (Quick Start)
+## 4. 빠른 시작 (Quick Start)
 
-### 권장 실행 (Batch Files)
-Windows 환경에서 가장 편하게 실행할 수 있는 스크립트를 제공합니다.
-- `run_web.bat`: 소비자용 웹 앱 개발 모드 실행 (Port 3000)
-- `run_admin.bat`: 셀러 비즈 포털 '그린링크 비즈' 실행 (Port 3001)
-- `start_web_prod.bat`: **최적화된 프로덕션 모드 빌드 및 실행 (20ms 성능 확인용)**
-- `run.bat`: 전체 모노레포 개발 환경 실행
+### 환경 초기 세팅 (최초 1회)
 
-### Manual Execution
-```bash
-# 의존성 설치
-npm install
+```powershell
+# 필수: Git, Node.js v20+, Python 3.14, VS Build Tools 2022 설치 후
+.\setup_env.bat
+```
 
-# 전체 개발 모드 실행
-npm run dev
+> 환경 구성 세부 사항은 `docs/ENV_SETUP.md` 참조
 
-# 특정 앱 프로덕션 빌드 및 실행
-npm run build --workspace=@greenlink/web
-npm start --workspace=@greenlink/web
+### 개발 서버 실행
+
+```powershell
+.\run_web.bat        # 소비자 웹앱 (Port 3000, Turbopack)
+.\run_admin.bat      # 관리자 앱 (Port 3001)
+.\run.bat            # 전체 모노레포 동시 실행
+```
+
+### 품질 검증
+
+```powershell
+npm run type-check   # 전 패키지 TypeScript 타입 검사
+npm run lint         # ESLint
+.\run_monitor.bat    # 실시간 에러 모니터 (Python)
 ```
 
 ---
 
-## 5. 핵심 엔티티 및 로직
-- **Seller/BizProfile**: 농가/판매자 전용 프로필 및 독립된 관리자 앱(`apps/admin`) 구축
-- **Order**: D+2~D+10 예약 및 일요일 배송 제외 로직 포함
-- **GroupBuy**: 실시간 경매가 대비 할인율 계산 및 공동구매 모집 시스템
-- **Lightweight Icons**: `lucide-react` 대신 Unicode Emoji를 사용하여 아이콘 로딩 지연 제거
+## 5. 환경 변수
+
+각 앱 디렉토리에 `.env.local` 파일이 필요합니다. (Git에 포함되지 않음)
+
+```
+apps/web/.env.local
+apps/admin/.env.local
+apps/driver/.env.local
+```
 
 ---
 
-## 6. 개발 및 문제 해결 (Troubleshooting)
-자세한 최적화 과정 및 문제 해결 내역은 다음 문서를 참고하세요.
-- [Troubleshooting Log](./troubleshooting.md): TTFB 개선 및 빌드 오류 해결 과정
+## 6. 핵심 문서
+
+| 문서 | 설명 |
+| :--- | :--- |
+| `docs/CRITICAL_LOGIC.md` | **SSOT** — 아키텍처 결정, 비즈니스 로직, 로드맵 |
+| `docs/current_task.md` | 현재 진행 중인 태스크 (Phase 4) |
+| `docs/AUTH_TROUBLESHOOTING.md` | 인증 관련 버그 및 해결책 모음 |
+| `docs/WORKFLOW.md` | AI 코딩 워크플로우 & 프롬프트 모음 |
+| `docs/ENV_SETUP.md` | 개발 환경 구축 가이드 |
+
+---
+
+## 7. 현재 개발 현황
+
+- **완료**: Phase 1 (인프라) / Phase 2 (Ark UI 마이그레이션) / Phase 3 (구매·결제 도메인)
+- **진행 중**: **Phase 4** — 마이페이지 고도화 및 전체 검색 기능 구현
+- **예정**: Phase 5 — 파트너스(admin/driver) 생태계 구축
 
 ---
 

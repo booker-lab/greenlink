@@ -1,19 +1,30 @@
+@import "tailwindcss";
 @import "@greenlink/ui/styles.css";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
+@theme {
+    --color-background: oklch(1 0 0);
+    --color-foreground: oklch(0.15 0.01 165);
+}
 
 /* IDE/확장 프로그램이 주입하는 user-select:auto 를 CSS로 원천 차단 */
-* {
-    user-select: none !important;
+@layer base {
+    * {
+        user-select: none !important;
+    }
+
+    input,
+    textarea,
+    [contenteditable] {
+        user-select: text !important;
+    }
+
+    body {
+        @apply selection:bg-primary/30 selection:text-primary-foreground;
+    }
 }
 
-input,
-textarea,
-[contenteditable] {
-    user-select: text !important;
-}
-
-.safe-area-pb {
-    padding-bottom: env(safe-area-inset-bottom);
+@layer utilities {
+    .safe-area-pb {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
 }

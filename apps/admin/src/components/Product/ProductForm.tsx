@@ -3,8 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button, Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Input } from "@greenlink/ui";
-import { useProductStore } from "@greenlink/lib";
+import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input } from "@greenlink/ui";
 
 const productSchema = z.object({
     name: z.string().min(2, "상품명은 2글자 이상이어야 합니다."),
@@ -21,7 +20,6 @@ interface ProductFormProps {
 }
 
 export function ProductForm({ onSuccess }: ProductFormProps) {
-    const { addProduct } = useProductStore();
 
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productSchema),
@@ -35,20 +33,8 @@ export function ProductForm({ onSuccess }: ProductFormProps) {
     });
 
     const onSubmit = (data: ProductFormValues) => {
-        addProduct({
-            id: `prod-${Date.now()}`,
-            name: data.name,
-            price: data.price,
-            originalPrice: data.price * 1.2,
-            stock: data.stock,
-            category: data.category as "CUT" | "ORC" | "FOL" | "ETC",
-            images: ["📦"],
-            description: data.description || "상세 설명이 없습니다.",
-            farmId: "farm-001",
-            unit: '개',
-            status: 'ACTIVE', // Default
-            createdAt: new Date().toISOString(),
-        });
+        // TODO: greenlinkApi로 실제 상품 등록 구현 예정
+        console.log('[ProductForm] New product data:', data);
 
         onSuccess();
         form.reset();

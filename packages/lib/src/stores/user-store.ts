@@ -1,15 +1,12 @@
 import { create } from 'zustand';
 import { greenlinkApi } from '../api';
 import { getSupabaseBrowserClient } from '../api/supabase';
+import { PinkTemperature } from '../types/user';
 
 export interface UserProfile {
     id: string;
     nickname: string;
-    pinkTemperature: {
-        value: number;
-        level: string;
-        emoji: string;
-    };
+    pinkTemperature: PinkTemperature;
     points: number;
 }
 
@@ -23,6 +20,7 @@ interface UserState {
     loginWithProvider: (provider: 'kakao' | 'naver' | 'google') => Promise<void>;
     logout: () => Promise<void>;
     fetchProfileAndCart: () => Promise<void>;
+    addToCart: (productId: string, qty?: number) => Promise<boolean>;
     incrementCart: (qty?: number) => void;
 }
 
@@ -44,8 +42,13 @@ export const useUserStore = create<UserState>()(
 
         loginWithProvider: async (provider) => {
             const supabase = getSupabaseBrowserClient();
+
+            // 현재 URL에서 next 파라미터 추출
+            const params = new URLSearchParams(window.location.search);
+            const next = params.get('next') || '/';
+
             const options: any = {
-                redirectTo: `${window.location.origin}/auth/callback`,
+                redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
                 // 자동 로그인 루프 방지: 매번 계정 선택 창을 강제 표시
                 queryParams: {
                     prompt: 'consent select_account'
@@ -95,6 +98,24 @@ export const useUserStore = create<UserState>()(
             } catch (e) {
                 console.error('[User Store] Data fetch failed', e);
             }
+        },
+
+        addToCart: async (productId: string, qty: number = 1) => {
+            const { isAuthenticated, user, incrementCart } = get();
+            if (!isAuthenticated || !user) {
+                // 로그인 유도 (Auth 페이지로 리다이렉트 권장)
+                window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+                return false;
+            }
+
+            const success = await greenlinkApi.addToCart(user.id, productId, qty);
+            if (success) {
+                // 낙관적 업데이트 또는 실제 서버 카운트 재조회
+                const newCount = await greenlinkApi.getCartCount(user.id);
+                set({ cartCount: newCount });
+                return true;
+            }
+            return false;
         },
 
         incrementCart: (qty = 1) => {

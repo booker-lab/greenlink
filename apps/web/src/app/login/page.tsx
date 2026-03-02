@@ -1,16 +1,23 @@
 "use client";
 
 import { Button } from "@greenlink/ui";
-import { useUserStore } from "@greenlink/lib";
+import { useUserStore, resetSupabaseBrowserClient } from "@greenlink/lib";
 import { useState } from "react";
 
 export default function LoginPage() {
     const [isLoading, setIsLoading] = useState<{ google: boolean, kakao: boolean }>({ google: false, kakao: false });
+    const [rememberMe, setRememberMe] = useState(false);
     const { loginWithProvider } = useUserStore();
 
     const handleLogin = async (provider: 'google' | 'kakao') => {
         try {
             setIsLoading(prev => ({ ...prev, [provider]: true }));
+            // [Remember Me] 체크박스 상태를 로컬 스토리지에 저장하고 클라이언트를 리셋하여 
+            // 새로운 인스턴스가 변경된 설정을 기반으로 생성되도록 함
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('gl_remember_me', rememberMe ? 'true' : 'false');
+                resetSupabaseBrowserClient();
+            }
             await loginWithProvider(provider);
         } catch (error) {
             console.error(`[Presentation] ${provider} Login Error:`, error);
@@ -29,6 +36,32 @@ export default function LoginPage() {
             </div>
 
             <div className="w-full max-w-sm space-y-4 pt-10">
+                {/* 로그인 상태 유지 체크박스 */}
+                <div className="flex items-center gap-2 mb-6 px-1">
+                    <label className="flex items-center gap-2 cursor-pointer group">
+                        <div className="relative flex items-center justify-center">
+                            <input
+                                type="checkbox"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                                className="peer appearance-none w-5 h-5 border-2 border-gray-200 rounded-md checked:bg-green-600 checked:border-green-600 transition-all cursor-pointer"
+                            />
+                            <svg
+                                className="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                            >
+                                <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                        </div>
+                        <span className="text-[13px] font-bold text-gray-500 group-hover:text-green-700 transition-colors">
+                            로그인 상태 유지하기
+                        </span>
+                    </label>
+                </div>
+
                 {/* 카카오 로그인 버튼 */}
                 <Button
                     className="w-full h-14 bg-[#FEE500] border-none text-[#000000] hover:bg-[#FEE500]/90 font-semibold shadow-sm flex items-center justify-center gap-3 text-base"

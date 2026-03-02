@@ -4,10 +4,13 @@ import { useEffect, useRef } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useUserStore, greenlinkApi, getSupabaseBrowserClient } from "@greenlink/lib";
 import type { UserProfile } from "@greenlink/lib";
+import { User } from "@supabase/supabase-js";
 
 interface SupabaseProviderProps {
     /** 서버 컴포넌트(layout.tsx)에서 Pre-fetch한 초기 사용자 데이터 */
     initialUser: UserProfile | null;
+    /** Auth 세션 정보 (프로필이 없어도 존재 가능) */
+    sessionUser: User | null;
     children: React.ReactNode;
 }
 
@@ -20,14 +23,14 @@ interface SupabaseProviderProps {
  *    (전역 globalThis 싱글톤 패턴 대신, Provider 마운트/언마운트 생명주기로 관리)
  * 3. 인증 상태의 단방향 흐름: Supabase → onAuthStateChange → useUserStore.setState
  */
-export function SupabaseProvider({ initialUser, children }: SupabaseProviderProps) {
+export function SupabaseProvider({ initialUser, sessionUser, children }: SupabaseProviderProps) {
     const isHydrated = useRef(false);
 
     // 1. 최초 렌더링 시 서버 데이터를 즉시 동기화 (React 렌더 중 동기 실행)
     if (!isHydrated.current) {
         useUserStore.setState({
             user: initialUser,
-            isAuthenticated: !!initialUser,
+            isAuthenticated: !!sessionUser,
             isInitialized: true, // 서버가 이미 확인했으므로 초기화 완료 처리
             cartCount: 0,
         });

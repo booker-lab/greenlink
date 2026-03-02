@@ -64,35 +64,47 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                     )}
                 </div>
 
-                {/* 공구 진행 현황 */}
-                <div className="bg-green-50 p-3 rounded-lg">
-                    <div className="flex justify-between text-sm mb-1">
-                        <span className="font-medium text-green-800">공동구매 현황</span>
-                        <span className="font-bold text-green-700">
-                            {item.currentParticipants} / {item.targetParticipants}명
-                        </span>
+                {/* 공구 진행 현황 - 실시간 데이터 연동 시각화 */}
+                <div className="bg-green-50 p-4 rounded-xl border border-green-100">
+                    <div className="flex justify-between items-end mb-2">
+                        <div>
+                            <span className="text-xs font-bold text-green-800 uppercase tracking-tight">공동구매 현황</span>
+                            <div className="text-lg font-black text-green-900 leading-tight">
+                                {item.currentParticipants}명 <span className="text-green-600 font-medium">참여 중</span>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <span className="text-[10px] font-bold text-gray-400 block mb-0.5">목표 인원</span>
+                            <span className="text-sm font-bold text-gray-700">{item.targetParticipants}명</span>
+                        </div>
                     </div>
-                    <div className="w-full bg-green-200 rounded-full h-2">
+
+                    <div className="w-full bg-white rounded-full h-2.5 shadow-inner overflow-hidden border border-green-100/50">
                         <div
-                            className="bg-green-600 h-2 rounded-full transition-all"
+                            className={`h-2.5 rounded-full transition-all duration-1000 ease-out ${item.status === 'GOAL_MET' ? 'bg-green-500' : 'bg-gradient-to-r from-red-400 to-green-500'}`}
                             style={{ width: `${Math.min(100, (item.currentParticipants / item.targetParticipants) * 100)}%` }}
                         />
                     </div>
-                    {item.status === "GOAL_MET" && (
-                        <p className="text-xs font-bold text-green-700 mt-1 text-center">
-                            모집 완료! 사입 진행 예정
-                        </p>
-                    )}
+
+                    <p className="text-[11px] text-center text-green-700 mt-2 font-bold tracking-tight">
+                        {item.status === 'GOAL_MET' ? '🎉 목표 달성! 익일 새벽 경매장에서 바로 사입됩니다.' : `${item.targetParticipants - item.currentParticipants}명 더 모이면 공구 성공!`}
+                    </p>
                 </div>
 
-                <div className="prose prose-sm text-gray-600 mt-6">
+                {/* 상품 상세 정보 */}
+                <div className="pt-4">
                     <h3 className="text-sm font-bold text-gray-900 mb-2">상품 상세 정보</h3>
-                    <p>산지 직배송으로 신선하게 전달해 드립니다.</p>
-                    <ul className="list-disc pl-4 space-y-1 text-xs mt-2">
-                        <li>원산지: 국내산</li>
-                        <li>경매 물량: {item.qty.toLocaleString()}본</li>
-                        <li>보관방법: 서늘한 곳에 보관</li>
-                    </ul>
+                    <div className="text-xs text-gray-600 leading-relaxed bg-white border border-gray-100 rounded-lg p-3 space-y-2">
+                        <div className="flex justify-between border-b border-gray-50 pb-1">
+                            <span className="text-gray-400">원산지</span>
+                            <span className="font-medium text-gray-900">국내산</span>
+                        </div>
+                        <div className="flex justify-between border-b border-gray-50 pb-1">
+                            <span className="text-gray-400">경매 물량 (최근 7일)</span>
+                            <span className="font-medium text-gray-900">{item.qty.toLocaleString()}본</span>
+                        </div>
+                        <p className="pt-1 text-gray-500 select-none">🌿 전문가 검수가 완료된 최상급 품질만을 엄선하여 산지에서 직배송합니다.</p>
+                    </div>
                 </div>
             </div>
 
